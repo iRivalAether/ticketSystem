@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Gestión de Tickets{% endblock %}</title>
+    
+    <!-- CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    {% if user.is_authenticated %}
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{% url 'dashboard' %}" class="navbar-brand">
+                <span>⚫</span> Ticket System
+            </a>
+            
+            <ul class="navbar-menu">
+                <li><a href="{% url 'dashboard' %}" class="navbar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+                <li><a href="{% url 'ticket_list' %}" class="navbar-link {% if 'ticket' in request.resolver_match.url_name %}active{% endif %}">Tickets</a></li>
+                
+                {% if user.puede_asignar_ticket %}
+                <li><a href="{% url 'ticket_triaje' %}" class="navbar-link">Triaje</a></li>
+                {% endif %}
+                
+                {% if user.puede_ver_reportes_globales %}
+                <li><a href="{% url 'reportes' %}" class="navbar-link">Reportes</a></li>
+                {% endif %}
+
+                {% if user.es_jefe_area or user.is_superuser %}
+                <li><a href="{% url 'semaforo_config' %}" class="navbar-link {% if request.resolver_match.url_name == 'semaforo_config' %}active{% endif %}">Semáforo SLA</a></li>
+                {% endif %}
+                
+                <li class="user-info">
+                    Usuario: <span>{{ user.nombre }}</span> ({{ user.rol }})
+                </li>
+                <li><a href="{% url 'logout' %}" class="navbar-link">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+    
+    <!-- Mensajes Flash -->
+    {% if messages %}
+    <div class="main-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Contenido Principal -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% if user.is_authenticated %}
+    <footer class="footer">
+        <p>&copy; 2026 Sistema de Gestión de Tickets. Todos los derechos reservados.</p>
+        <p>Desarrollado con <span class="text-dorado">Django</span></p>
+    </footer>
+    {% endif %}
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

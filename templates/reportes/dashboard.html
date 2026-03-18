@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Reportes - Sistema de Tickets{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="page-header">
+        <h1 class="page-title">📊 Reportes y Estadísticas</h1>
+        <p class="page-subtitle">Vista global del sistema</p>
+    </div>
+    
+    <!-- Estadísticas SLA -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Control de SLA</h2>
+        </div>
+        <div class="card-body">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="rep-verde" style="color: var(--color-exito);">
+                        {{ stats_sla.verde }}
+                    </div>
+                    <div class="stat-label">SLA Verde</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="rep-amarillo" style="color: var(--color-advertencia);">
+                        {{ stats_sla.amarillo }}
+                    </div>
+                    <div class="stat-label">SLA Amarillo</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-number" id="rep-rojo" style="color: var(--color-peligro);">
+                        {{ stats_sla.rojo }}
+                    </div>
+                    <div class="stat-label">SLA Rojo</div>
+                </div>
+                
+                <div class="stat-card destacado">
+                    <div class="stat-number" id="rep-cumplimiento">
+                        {{ stats_sla.cumplimiento }}%
+                    </div>
+                    <div class="stat-label">Cumplimiento</div>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="margin-top: 1rem;">
+                <div class="stat-card">
+                    <div class="stat-number" id="rep-promedio-atencion">{{ stats_tiempos.promedio_primera_atencion_minutos }}</div>
+                    <div class="stat-label">Promedio Primera Atención (min)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="rep-promedio-resolucion">{{ stats_tiempos.promedio_resolucion_horas }}</div>
+                    <div class="stat-label">Promedio Resolución (h)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="rep-cerrados-tiempo">{{ stats_sla.cerrados_en_tiempo }}</div>
+                    <div class="stat-label">Tickets Cerrados en Tiempo</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="rep-total-cerrados">{{ stats_sla.total_cerrados }}</div>
+                    <div class="stat-label">Tickets Cerrados Totales</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Información Adicional -->
+    <div class="alert alert-info">
+        <strong>Nota:</strong> Los reportes detallados por jornada, área y usuario estarán disponibles en la siguiente versión.
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const refreshReportesStats = async () => {
+        try {
+            const response = await fetch("{% url 'reportes_stats_api' %}", {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!response.ok) return;
+            const data = await response.json();
+
+            const setText = (id, value) => {
+                const element = document.getElementById(id);
+                if (!element) return;
+                element.classList.add('updating');
+                element.textContent = value;
+                setTimeout(() => element.classList.remove('updating'), 250);
+            };
+
+            setText('rep-verde', data.stats_sla.verde);
+            setText('rep-amarillo', data.stats_sla.amarillo);
+            setText('rep-rojo', data.stats_sla.rojo);
+            setText('rep-cumplimiento', `${data.stats_sla.cumplimiento}%`);
+            setText('rep-promedio-atencion', data.stats_tiempos.promedio_primera_atencion_minutos);
+            setText('rep-promedio-resolucion', data.stats_tiempos.promedio_resolucion_horas);
+            setText('rep-cerrados-tiempo', data.stats_sla.cerrados_en_tiempo);
+            setText('rep-total-cerrados', data.stats_sla.total_cerrados);
+        } catch (error) {
+            console.error('No se pudieron actualizar las métricas de reportes', error);
+        }
+    };
+
+    setInterval(refreshReportesStats, 15000);
+</script>
+{% endblock %}

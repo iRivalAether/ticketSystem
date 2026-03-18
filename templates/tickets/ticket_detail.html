@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ ticket.folio }} - Detalle del Ticket{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <a href="{% url 'ticket_list' %}" style="color: var(--color-gris-oscuro);">Tickets</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <span class="text-dorado">{{ ticket.folio }}</span>
+    </div>
+    
+    <div class="page-header">
+        <div class="d-flex justify-between align-center">
+            <div>
+                <h1 class="page-title">{{ ticket.folio }}</h1>
+                <p class="page-subtitle">{{ ticket.nombre }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <span class="sla-indicator sla-{{ ticket.sla_status }}" style="width: 40px; height: 40px;"></span>
+                
+                {% if ticket.estado == 'Asignado' and ticket.usuario_asignado == user %}
+                <a href="{% url 'ticket_atencion' ticket.id %}" class="btn btn-primary">
+                    Iniciar Atención
+                </a>
+                {% endif %}
+                
+                {% if ticket.estado == 'En Atención' and ticket.usuario_asignado == user %}
+                <a href="{% url 'ticket_cerrar' ticket.id %}" class="btn btn-success">
+                    Cerrar Ticket
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Grid de 2 columnas -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+        <!-- Columna Principal -->
+        <div>
+            <!-- Información del Ticket -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Información del Ticket</h2>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">
+                                Estado
+                            </p>
+                            <p style="margin-bottom: 1.5rem;">
+                                {% if ticket.estado == 'Abierto' %}
+                                <span class="badge badge-warning">{{ ticket.get_estado_display }}</span>
+                                {% elif ticket.estado == 'Asignado' %}
+                                <span class="badge badge-secondary">{{ ticket.get_estado_display }}</span>
+                                {% elif ticket.estado == 'En Atención' %}
+                                <span class="badge badge-dorado">{{ ticket.get_estado_display }}</span>
+                                {% elif ticket.estado == 'Cerrado' %}
+                                <span class="badge badge-success">{{ ticket.get_estado_display }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">
+                                Prioridad
+                            </p>
+                            <p style="margin-bottom: 1.5rem;">{{ ticket.prioridad.nombre }}</p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">
+                                Área
+                            </p>
+                            <p style="margin-bottom: 1.5rem;">{{ ticket.area.nombre }}</p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">
+                                Jornada
+                            </p>
+                            <p style="margin-bottom: 1.5rem;">{{ ticket.jornada.nombre }}</p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">
+                                Asignado a
+                            </p>
+                            <p style="margin-bottom: 1.5rem;">
+                                {{ ticket.usuario_asignado.nombre|default:"Sin asignar" }}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">
+                                Creado por
+                            </p>
+                            <p style="margin-bottom: 1.5rem;">{{ ticket.usuario_solicitante.nombre }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr style="border: none; border-top: 1px solid var(--color-gris-medio); margin: 1.5rem 0;">
+                    
+                    <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">
+                        Descripción
+                    </p>
+                    <p style="white-space: pre-wrap;">{{ ticket.descripcion }}</p>
+                </div>
+            </div>
+            
+            <!-- Historial de Estados -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Historial de Estados</h2>
+                </div>
+                <div class="card-body">
+                    {% if historial_estados %}
+                    <div style="position: relative;">
+                        {% for estado in historial_estados %}
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="position: relative;">
+                                <div style="
+                                    width: 16px;
+                                    height: 16px;
+                                    border-radius: 50%;
+                                    background-color: var(--color-dorado);
+                                    border: 3px solid var(--color-negro);
+                                    z-index: 2;
+                                    position: relative;
+                                "></div>
+                                {% if not forloop.last %}
+                                <div style="
+                                    position: absolute;
+                                    left: 7px;
+                                    top: 16px;
+                                    width: 2px;
+                                    height: calc(100% + 1.5rem);
+                                    background-color: var(--color-gris-medio);
+                                "></div>
+                                {% endif %}
+                            </div>
+                            <div style="flex: 1;">
+                                <p style="margin: 0; font-weight: 600;">{{ estado.get_estado_display }}</p>
+                                <p style="margin: 0; font-size: 0.875rem; color: var(--color-gris-oscuro);">
+                                    {{ estado.usuario.nombre }} - {{ estado.fecha|date:"d/m/Y H:i" }}
+                                </p>
+                                {% if estado.comentario %}
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; padding: 0.5rem; background-color: var(--color-gris-claro); border-radius: 4px;">
+                                    {{ estado.comentario }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-center" style="color: var(--color-gris-oscuro);">
+                        No hay historial de estados registrado.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Columna Lateral -->
+        <div>
+            <!-- Información SLA -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">⏱️ Control SLA</h2>
+                </div>
+                <div class="card-body">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <span class="sla-indicator sla-{{ ticket.sla_status }}" style="width: 60px; height: 60px;"></span>
+                        <p style="margin-top: 1rem; font-size: 1.25rem; font-weight: 600; text-transform: uppercase;">
+                            {{ ticket.sla_status }}
+                        </p>
+                    </div>
+                    
+                    <div style="border-top: 1px solid var(--color-gris-medio); padding-top: 1rem;">
+                        <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-size: 0.875rem;">
+                            Tiempo transcurrido
+                        </p>
+                        <p style="margin-bottom: 1rem; font-weight: 600;">
+                            {{ ticket.tiempo_transcurrido }}
+                        </p>
+                        
+                        <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-size: 0.875rem;">
+                            Tiempo límite
+                        </p>
+                        <p style="margin-bottom: 1rem; font-weight: 600;">
+                            {{ ticket.tiempo_limite_resolucion }}
+                        </p>
+                        
+                        <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-size: 0.875rem;">
+                            SLA aplicado
+                        </p>
+                        <p style="margin-bottom: 0; font-weight: 600;">
+                            {{ ticket.prioridad.sla.nombre }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fechas Clave -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Fechas</h2>
+                </div>
+                <div class="card-body">
+                    <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-size: 0.875rem;">
+                        Fecha de Creación
+                    </p>
+                    <p style="margin-bottom: 1rem; font-weight: 600;">
+                        {{ ticket.created_at|date:"d/m/Y H:i" }}
+                    </p>
+                    
+                    {% if ticket.fecha_asignacion %}
+                    <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-size: 0.875rem;">
+                        Fecha de Asignación
+                    </p>
+                    <p style="margin-bottom: 1rem; font-weight: 600;">
+                        {{ ticket.fecha_asignacion|date:"d/m/Y H:i" }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if ticket.fecha_inicio_atencion %}
+                    <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-size: 0.875rem;">
+                        Inicio de Atención
+                    </p>
+                    <p style="margin-bottom: 1rem; font-weight: 600;">
+                        {{ ticket.fecha_inicio_atencion|date:"d/m/Y H:i" }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if ticket.fecha_cierre %}
+                    <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-size: 0.875rem;">
+                        Fecha de Cierre
+                    </p>
+                    <p style="margin-bottom: 0; font-weight: 600;">
+                        {{ ticket.fecha_cierre|date:"d/m/Y H:i" }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

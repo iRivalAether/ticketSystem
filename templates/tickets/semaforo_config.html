@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Configuración Semáforo SLA{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="page-header">
+        <h1 class="page-title">Configuración de Semáforo SLA</h1>
+        <p class="page-subtitle">Ajusta los umbrales de alerta para cumplimiento de tiempos</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ config_actual.warning_percentage }}%</div>
+            <div class="stat-label">Umbral Amarillo Actual</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ config_actual.danger_percentage }}%</div>
+            <div class="stat-label">Umbral Rojo Actual</div>
+        </div>
+    </div>
+
+    <div class="card" style="max-width: 700px; margin: 0 auto;">
+        <div class="card-header">
+            <h2 class="card-title">Editar Umbrales</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.warning_percentage.id_for_label }}" class="form-label">
+                        {{ form.warning_percentage.label }}
+                    </label>
+                    {{ form.warning_percentage }}
+                    <small class="form-text">Al llegar a este porcentaje del tiempo SLA, el ticket cambia a amarillo.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.danger_percentage.id_for_label }}" class="form-label">
+                        {{ form.danger_percentage.label }}
+                    </label>
+                    {{ form.danger_percentage }}
+                    <small class="form-text">Al llegar a este porcentaje del tiempo SLA, el ticket cambia a rojo.</small>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Volver</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

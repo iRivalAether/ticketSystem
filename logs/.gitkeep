@@ -1,0 +1,3 @@
+# Logs directory
+# Los archivos de log se generarán automáticamente aquí
+*.log

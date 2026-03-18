@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Cerrar Ticket - {{ ticket.folio }}{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <a href="{% url 'ticket_detalle' ticket.id %}" style="color: var(--color-gris-oscuro);">{{ ticket.folio }}</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <span class="text-dorado">Cerrar</span>
+    </div>
+    
+    <div class="page-header">
+        <h1 class="page-title">Cerrar Ticket: {{ ticket.folio }}</h1>
+        <p class="page-subtitle">{{ ticket.nombre }}</p>
+    </div>
+    
+    <div class="card" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-body">
+            <div class="alert alert-info">
+                <strong>Importante:</strong> Al cerrar este ticket, debe proporcionar una descripción de la solución aplicada.
+            </div>
+            
+            <form method="post" action="{% url 'ticket_cerrar' ticket.id %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.solucion.id_for_label }}" class="form-label">
+                        Solución Aplicada *
+                    </label>
+                    {{ form.solucion }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.comentario.id_for_label }}" class="form-label">
+                        Comentarios Adicionales
+                    </label>
+                    {{ form.comentario }}
+                </div>
+                
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        ✓ Cerrar Ticket
+                    </button>
+                    <a href="{% url 'ticket_detalle' ticket.id %}" class="btn btn-secondary btn-lg">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

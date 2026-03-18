@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Triaje de Tickets{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="page-header">
+        <h1 class="page-title">Gestión de Triaje</h1>
+        <p class="page-subtitle">Tickets pendientes de asignación</p>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if tickets %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Título</th>
+                            <th>Prioridad</th>
+                            <th>Jornada</th>
+                            <th>Solicitante</th>
+                            <th>SLA</th>
+                            <th>Creado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td><strong>{{ ticket.folio }}</strong></td>
+                            <td>{{ ticket.nombre|truncatewords:10 }}</td>
+                            <td>{{ ticket.prioridad.nombre }}</td>
+                            <td>{{ ticket.jornada.nombre }}</td>
+                            <td>{{ ticket.usuario_solicitante.nombre }}</td>
+                            <td style="text-align: center;">
+                                <span class="sla-indicator sla-{{ ticket.sla_status }}"></span>
+                            </td>
+                            <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'ticket_realizar_triaje' ticket.id %}" class="btn btn-primary btn-sm">
+                                    Asignar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-center" style="padding: 3rem; color: var(--color-gris-oscuro);">
+                No hay tickets pendientes de triaje.
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
