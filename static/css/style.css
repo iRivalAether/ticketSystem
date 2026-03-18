@@ -102,6 +102,13 @@ body {
     color: var(--color-negro);
 }
 
+.navbar-link-button {
+    border: none;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+}
+
 .user-info {
     color: var(--color-blanco);
     padding: 0.5rem 1rem;

@@ -17,18 +17,33 @@ def _build_dashboard_metrics(usuario):
     metricas_tiempos = TicketService.obtener_promedios_tiempos(area=area_referencia)
     metricas_sla = TicketService.obtener_estadisticas_sla(area=area_referencia)
 
-    return {
-        'mis_tickets_abiertos': base_tickets.exclude(
-            estado__in=[Ticket.ESTADO_CERRADO, Ticket.ESTADO_CERRADO_AUTOMATICO]
-        ).count(),
-        'tickets_en_atencion': base_tickets.filter(
+    if usuario.es_operativo:
+        tickets_en_atencion = base_tickets.filter(
             estado=Ticket.ESTADO_EN_ATENCION,
             usuario_asignado=usuario
+        )
+    else:
+        tickets_en_atencion = base_tickets.filter(estado=Ticket.ESTADO_EN_ATENCION)
+    
+    tickets_abiertos = base_tickets.exclude(
+        estado__in=[Ticket.ESTADO_CERRADO, Ticket.ESTADO_CERRADO_AUTOMATICO]
+    )
+    tickets_asignados = base_tickets.filter(estado=Ticket.ESTADO_ASIGNADO)
+
+    return {
+        'mis_tickets_abiertos': tickets_abiertos.count(),
+        'mis_tickets_asignados': tickets_asignados.count(),
+        'tickets_en_atencion': tickets_en_atencion.count(),
+        'tickets_total_activos': base_tickets.exclude(
+            estado__in=[Ticket.ESTADO_CERRADO, Ticket.ESTADO_CERRADO_AUTOMATICO]
         ).count(),
-        'tickets_sla_critico': sum(1 for ticket in base_tickets if ticket.sla_status == 'rojo'),
+        'tickets_sla_critico': metricas_sla['sla_rojo'],
+        'tickets_sla_alerta': metricas_sla['sla_amarillo'],
+        'tickets_sla_ok': metricas_sla['sla_verde'],
         'cumplimiento_sla': metricas_sla['cumplimiento_porcentaje'],
         'promedio_primera_atencion': metricas_tiempos['promedio_primera_atencion_minutos'],
         'promedio_resolucion': metricas_tiempos['promedio_resolucion_horas'],
+        'tickets_cerrados_total': metricas_sla['total_cerrados'],
     }
 
 
@@ -62,9 +77,21 @@ def dashboard(request):
     if usuario.puede_ver_reportes_globales():
         stats_jornada = []
         for jornada in Jornada.objects.all():
-            tickets_jornada = Ticket.objects.filter(jornada=jornada)
+            tickets_jornada = Ticket.objects.filter(jornada=jornada, is_active=True)
             total = tickets_jornada.count()
-            cumplimiento = 80  # Calcular dinámicamente
+
+            tickets_cerrados = tickets_jornada.filter(
+                estado__in=[Ticket.ESTADO_CERRADO, Ticket.ESTADO_CERRADO_AUTOMATICO],
+                fecha_cierre__isnull=False
+            )
+            total_cerrados = tickets_cerrados.count()
+            cerrados_en_tiempo = 0
+
+            for ticket in tickets_cerrados:
+                if ticket.tiempo_limite_resolucion and ticket.fecha_cierre <= ticket.tiempo_limite_resolucion:
+                    cerrados_en_tiempo += 1
+
+            cumplimiento = round((cerrados_en_tiempo / total_cerrados) * 100, 2) if total_cerrados else 0
             stats_jornada.append({
                 'jornada': jornada.nombre,
                 'total': total,
@@ -395,3 +422,86 @@ def reportes_stats_api(request):
         'stats_sla': stats_sla,
         'stats_tiempos': stats_tiempos,
     })
+
+
+@login_required
+def ticket_liberar(request, ticket_id):
+    """Liberar un ticket (cerrarlo por jefatura)."""
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    
+    # Solo jefe de área puede liberar
+    if not request.user.es_jefe_area:
+        messages.error(request, 'Solo el jefe de área puede liberar tickets.')
+        return redirect('dashboard')
+
+    # Jefe solo sobre su área
+    if request.user.area and ticket.area_id != request.user.area_id:
+        messages.error(request, 'Solo puede liberar tickets de su área.')
+        return redirect('dashboard')
+    
+    if ticket.estado not in [Ticket.ESTADO_ASIGNADO, Ticket.ESTADO_EN_ATENCION]:
+        messages.error(request, f'El ticket debe estar Asignado o En Atención. Estado actual: {ticket.estado}')
+        return redirect('ticket_detalle', ticket_id=ticket.id)
+    
+    if request.method == 'POST':
+        try:
+            TicketService.liberar_ticket(ticket_id=ticket.id, usuario=request.user)
+            messages.success(
+                request,
+                f'Ticket {ticket.folio} liberado y cerrado exitosamente.'
+            )
+            return redirect('dashboard')
+        except Exception as e:
+            messages.error(request, f'Error al liberar ticket: {str(e)}')
+    
+    context = {
+        'ticket': ticket,
+        'accion': 'liberar',
+    }
+    
+    return render(request, 'tickets/ticket_liberar.html', context)
+
+
+@login_required
+def ticket_devolver(request, ticket_id):
+    """Compatibilidad: redirige al flujo de retomar ticket."""
+    return ticket_retomar(request, ticket_id)
+
+
+@login_required
+def ticket_retomar(request, ticket_id):
+    """Retomar un ticket cerrado para continuar su atención."""
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    
+    # Solo jefe de área
+    if not request.user.es_jefe_area:
+        messages.error(request, 'Solo el jefe de área puede retomar tickets.')
+        return redirect('dashboard')
+
+    # Jefe solo sobre su área
+    if request.user.area and ticket.area_id != request.user.area_id:
+        messages.error(request, 'Solo puede retomar tickets de su área.')
+        return redirect('dashboard')
+    
+    if ticket.estado not in [Ticket.ESTADO_CERRADO, Ticket.ESTADO_CERRADO_AUTOMATICO]:
+        messages.error(request, f'El ticket debe estar Cerrado. Estado actual: {ticket.estado}')
+        return redirect('ticket_detalle', ticket_id=ticket.id)
+    
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo', '')
+        try:
+            TicketService.retomar_ticket(ticket_id=ticket.id, usuario=request.user, motivo=motivo)
+            messages.success(
+                request,
+                f'Ticket {ticket.folio} retomado exitosamente.'
+            )
+            return redirect('ticket_detalle', ticket_id=ticket.id)
+        except Exception as e:
+            messages.error(request, f'Error al retomar ticket: {str(e)}')
+    
+    context = {
+        'ticket': ticket,
+        'accion': 'retomar',
+    }
+    
+    return render(request, 'tickets/ticket_retomar.html', context)

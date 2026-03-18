@@ -53,11 +53,17 @@ urlpatterns = [
     path('tickets/<int:ticket_id>/', ticket_views.ticket_detail, name='ticket_detalle'),
     path('tickets/<int:ticket_id>/atencion/', ticket_views.ticket_atencion, name='ticket_atencion'),
     path('tickets/<int:ticket_id>/cerrar/', ticket_views.ticket_cerrar, name='ticket_cerrar'),
+    path('tickets/<int:ticket_id>/liberar/', ticket_views.ticket_liberar, name='ticket_liberar'),
+    path('tickets/<int:ticket_id>/devolver/', ticket_views.ticket_devolver, name='ticket_devolver'),
+    path('tickets/<int:ticket_id>/retomar/', ticket_views.ticket_retomar, name='ticket_retomar'),
     
     # Triaje
     path('triaje/', ticket_views.ticket_triaje, name='ticket_triaje'),
     path('triaje/<int:ticket_id>/', ticket_views.ticket_realizar_triaje, name='ticket_realizar_triaje'),
     path('configuracion/semaforo-sla/', ticket_views.semaforo_config, name='semaforo_config'),
+    
+    # Usuarios
+    path('usuarios/', include('apps.usuarios.urls')),
     
     # Reportes
     path('reportes/', ticket_views.reportes, name='reportes'),

@@ -427,3 +427,93 @@ class TicketService:
             'tickets_con_atencion': count_atencion,
             'tickets_cerrados': count_resolucion,
         }
+
+    @staticmethod
+    @transaction.atomic
+    def liberar_ticket(ticket_id, usuario):
+        """
+        Libera un ticket cerrándolo por decisión de jefatura.
+        Regla de negocio: solo Jefe de Área puede liberar.
+        
+        Args:
+            ticket_id (int): ID del ticket
+            usuario (Usuario): Usuario que libera el ticket
+            
+        Returns:
+            Ticket: El ticket liberado
+        """
+        ticket = Ticket.objects.get(pk=ticket_id)
+        
+        # Solo Jefe de Área puede liberar
+        if not usuario.es_jefe_area:
+            raise ValidationError('Solo el jefe de área puede liberar tickets')
+
+        # Jefe solo puede liberar tickets de su propia área
+        if usuario.area and ticket.area_id != usuario.area_id:
+            raise ValidationError('Solo puede liberar tickets de su área')
+        
+        # Validar estado
+        if ticket.estado not in [Ticket.ESTADO_ASIGNADO, Ticket.ESTADO_EN_ATENCION]:
+            raise ValidationError(f'El ticket debe estar Asignado o En Atención. Estado actual: {ticket.estado}')
+        
+        # Liberar = cerrar por jefatura (no debe quedar como activo)
+        ticket.estado = Ticket.ESTADO_CERRADO
+        ticket.fecha_cierre = timezone.now()
+        ticket.save()
+
+        ticket.registrar_cambio_estado(
+            Ticket.ESTADO_CERRADO,
+            usuario,
+            f'Ticket liberado/cerrado por jefatura: {usuario.nombre}'
+        )
+        
+        logger.info(f"Ticket {ticket.folio} liberado por {usuario.nombre}")
+        return ticket
+
+    @staticmethod
+    @transaction.atomic
+    def retomar_ticket(ticket_id, usuario, motivo=''):
+        """
+        Retoma un ticket previamente cerrado, reabriéndolo para atención.
+        
+        Args:
+            ticket_id (int): ID del ticket
+            usuario (Usuario): Usuario que retoma el ticket
+            motivo (str): Motivo del retome
+            
+        Returns:
+            Ticket: El ticket reabierto para continuar trabajo
+        """
+        ticket = Ticket.objects.get(pk=ticket_id)
+        
+        # Solo jefatura puede retomar
+        if not usuario.es_jefe_area:
+            raise ValidationError('Solo el jefe de área puede retomar tickets')
+
+        # Jefe solo puede retomar tickets de su área
+        if usuario.area and ticket.area_id != usuario.area_id:
+            raise ValidationError('Solo puede retomar tickets de su área')
+        
+        # Validar estado
+        if ticket.estado not in [Ticket.ESTADO_CERRADO, Ticket.ESTADO_CERRADO_AUTOMATICO]:
+            raise ValidationError(f'El ticket debe estar Cerrado para retomarlo. Estado actual: {ticket.estado}')
+        
+        # Reabrir ticket para continuidad
+        ticket.estado = Ticket.ESTADO_ASIGNADO if ticket.usuario_asignado else Ticket.ESTADO_ABIERTO
+        ticket.fecha_cierre = None
+        ticket.save()
+
+        ticket.registrar_cambio_estado(
+            ticket.estado,
+            usuario,
+            f'Ticket retomado por {usuario.nombre}. Motivo: {motivo}'
+        )
+        
+        logger.info(f"Ticket {ticket.folio} retomado por {usuario.nombre}")
+        return ticket
+
+    @staticmethod
+    @transaction.atomic
+    def devolver_ticket(ticket_id, usuario, motivo=''):
+        """Alias de compatibilidad para retomar_ticket."""
+        return TicketService.retomar_ticket(ticket_id=ticket_id, usuario=usuario, motivo=motivo)

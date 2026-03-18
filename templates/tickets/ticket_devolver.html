@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Devolver Ticket - {{ ticket.folio }}{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <a href="{% url 'ticket_detalle' ticket.id %}" style="color: var(--color-gris-oscuro);">{{ ticket.folio }}</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <span class="text-dorado">Devolver</span>
+    </div>
+    
+    <div class="page-header">
+        <h1 class="page-title">Devolver Ticket {{ ticket.folio }}</h1>
+        <p class="page-subtitle">{{ ticket.nombre }}</p>
+    </div>
+    
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Devolver a Abierto</h2>
+            </div>
+            <div class="card-body">
+                <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                    <p style="margin: 0; color: #721c24;">
+                        <strong>⚠️ Acción Crítica:</strong> Este ticket será devuelto a estado Abierto. Use esta opción solo cuando sea necesario reabrir un ticket cerrado.
+                    </p>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">
+                        Detalles del Ticket:
+                    </p>
+                    <ul style="margin: 0; padding-left: 1.5rem; line-height: 1.8;">
+                        <li><strong>Folio:</strong> {{ ticket.folio }}</li>
+                        <li><strong>Título:</strong> {{ ticket.nombre }}</li>
+                        <li><strong>Estado Actual:</strong> {{ ticket.get_estado_display }}</li>
+                        <li><strong>Área:</strong> {{ ticket.area.nombre }}</li>
+                        <li><strong>Prioridad:</strong> {{ ticket.prioridad.nombre }}</li>
+                        <li><strong>Cerrado por:</strong> {{ ticket.usuario_asignado.nombre }}</li>
+                    </ul>
+                </div>
+                
+                <form method="post" style="border-top: 1px solid #e0e0e0; padding-top: 1.5rem;">
+                    {% csrf_token %}
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="motivo" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+                            Motivo de Devolución
+                        </label>
+                        <textarea 
+                            name="motivo" 
+                            id="motivo"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Describa por qué se está devolviendo este ticket..."
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn btn-danger" style="flex: 1;">
+                            ✓ Confirmar Devolución
+                        </button>
+                        <a href="{% url 'ticket_detalle' ticket.id %}" class="btn btn-secondary" style="flex: 1;">
+                            ✕ Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

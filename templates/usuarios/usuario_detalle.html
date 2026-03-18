@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ usuario.nombre }} - Detalle de Usuario{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <a href="{% url 'usuarios:usuario_listar' %}" style="color: var(--color-gris-oscuro);">Usuarios</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <span class="text-dorado">{{ usuario.nombre }}</span>
+    </div>
+    
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="page-title">{{ usuario.nombre }}</h1>
+            <p class="page-subtitle">{{ usuario.rol.nombre }}</p>
+        </div>
+        <a href="{% url 'usuarios:usuario_editar' usuario.id %}" class="btn btn-primary">
+            ✏ Editar Usuario
+        </a>
+    </div>
+    
+    <!-- Grid de 2 columnas -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+        <!-- Columna Principal -->
+        <div>
+            <!-- Información del Usuario -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Información</h2>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Nombre</p>
+                            <p style="margin-bottom: 1.5rem;">{{ usuario.nombre }}</p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Email</p>
+                            <p style="margin-bottom: 1.5rem;">
+                                <code style="background: #f4f4f4; padding: 0.25rem 0.5rem; border-radius: 3px;">
+                                    {{ usuario.user.username }}
+                                </code>
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Rol</p>
+                            <p style="margin-bottom: 1.5rem;">
+                                {% if usuario.rol.nivel_jerarquico == 1 %}
+                                    <span class="badge badge-secondary">{{ usuario.rol.nombre }}</span>
+                                {% elif usuario.rol.nivel_jerarquico == 2 %}
+                                    <span class="badge badge-dorado">{{ usuario.rol.nombre }}</span>
+                                {% else %}
+                                    <span class="badge badge-success">{{ usuario.rol.nombre }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Área</p>
+                            <p style="margin-bottom: 1.5rem;">
+                                {% if usuario.area %}
+                                    {{ usuario.area.nombre }}
+                                {% else %}
+                                    <span style="color: #999;">No asignada</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Estado</p>
+                            <p style="margin-bottom: 1.5rem;">
+                                {% if usuario.is_active %}
+                                    <span style="color: #28a745; font-weight: 600;">✓ Activo</span>
+                                {% else %}
+                                    <span style="color: #dc3545; font-weight: 600;">✗ Inactivo</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Fecha de Creación</p>
+                            <p style="margin-bottom: 1.5rem;">{{ usuario.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estadísticas (si es Operativo) -->
+            {% if usuario.es_operativo and stats %}
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">Estadísticas de Tickets</h2>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; text-align: center;">
+                            <p style="margin: 0; color: var(--color-gris-oscuro); font-size: 0.875rem; font-weight: 600;">Total</p>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: var(--color-dorado);">
+                                {{ stats.tickets_totales }}
+                            </p>
+                        </div>
+                        
+                        <div style="background: #fff3cd; padding: 1rem; border-radius: 4px; text-align: center;">
+                            <p style="margin: 0; color: var(--color-gris-oscuro); font-size: 0.875rem; font-weight: 600;">Abiertos</p>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: #ff9800;">
+                                {{ stats.tickets_abiertos }}
+                            </p>
+                        </div>
+                        
+                        <div style="background: #e7f3ff; padding: 1rem; border-radius: 4px; text-align: center;">
+                            <p style="margin: 0; color: var(--color-gris-oscuro); font-size: 0.875rem; font-weight: 600;">En Atención</p>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: #2196f3;">
+                                {{ stats.tickets_en_atencion }}
+                            </p>
+                        </div>
+                        
+                        <div style="background: #d4edda; padding: 1rem; border-radius: 4px; text-align: center;">
+                            <p style="margin: 0; color: var(--color-gris-oscuro); font-size: 0.875rem; font-weight: 600;">Asignados</p>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: #28a745;">
+                                {{ stats.tickets_asignados }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Columna Lateral -->
+        <div>
+            <!-- Información de Permisos -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Permisos</h2>
+                </div>
+                <div class="card-body">
+                    <ul style="margin: 0; padding-left: 1.5rem; list-style: none;">
+                        {% if usuario.es_operativo %}
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Ver tickets asignados
+                            </li>
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Actualizar estado
+                            </li>
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Cerrar tickets
+                            </li>
+                        {% endif %}
+                        
+                        {% if usuario.es_jefe_area %}
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Ver tickets del área
+                            </li>
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Realizar triaje
+                            </li>
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Asignar tickets
+                            </li>
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Liberar tickets
+                            </li>
+                        {% endif %}
+                        
+                        {% if usuario.es_supervision_general %}
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Ver todos los tickets
+                            </li>
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Acceder a reportes globales
+                            </li>
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Gestionar usuarios
+                            </li>
+                            <li style="margin-bottom: 0.75rem;">
+                                ✓ Devolver tickets
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge {
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        border-radius: 3px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .badge-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .badge-dorado {
+        background: var(--color-dorado);
+        color: black;
+    }
+    
+    .badge-success {
+        background: #28a745;
+        color: white;
+    }
+</style>
+{% endblock %}

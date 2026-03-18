@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <a href="{% url 'usuarios:usuario_listar' %}" style="color: var(--color-gris-oscuro);">Usuarios</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <span class="text-dorado">{{ titulo }}</span>
+    </div>
+    
+    <div class="page-header">
+        <h1 class="page-title">{{ titulo }}</h1>
+    </div>
+    
+    <div style="max-width: 700px;">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                        {% for error in form.non_field_errors %}
+                            <p style="margin: 0.25rem 0;">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% for field in form %}
+                        <div style="margin-bottom: 1.5rem;">
+                            <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+                                {{ field.label }}
+                            </label>
+                            
+                            {% if field.field.widget.input_type == 'password' %}
+                                {{ field }}
+                            {% elif field.field.widget.input_type == 'checkbox' %}
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    {{ field }}
+                                    <span>{{ field.label }}</span>
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                            <small style="display: block; margin-top: 0.25rem; color: #6c757d;">
+                                {{ field.help_text|safe }}
+                            </small>
+                            {% endif %}
+                            
+                            {% if field.errors %}
+                            <div style="color: #dc3545; margin-top: 0.25rem; font-size: 0.875rem;">
+                                {% for error in field.errors %}
+                                    <p style="margin: 0.25rem 0;">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <div style="display: flex; gap: 1rem; border-top: 1px solid #e0e0e0; padding-top: 1.5rem;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            ✓ Guardar
+                        </button>
+                        <a href="{% url 'usuarios:usuario_listar' %}" class="btn btn-secondary" style="flex: 1;">
+                            ✕ Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    form input[type="text"],
+    form input[type="email"],
+    form input[type="password"],
+    form textarea,
+    form select {
+        class: form-control;
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    form input[type="text"]:focus,
+    form input[type="email"]:focus,
+    form input[type="password"]:focus,
+    form textarea:focus,
+    form select:focus {
+        outline: none;
+        border-color: var(--color-dorado);
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    }
+    
+    form textarea {
+        resize: vertical;
+        font-family: inherit;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <span class="text-dorado">Usuarios</span>
+    </div>
+    
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="page-title">Gestión de Usuarios</h1>
+            <p class="page-subtitle">{{ paginator.count }} usuario{{ paginator.count|pluralize }}</p>
+        </div>
+        <a href="{% url 'usuarios:usuario_crear' %}" class="btn btn-primary">
+            + Crear Usuario
+        </a>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+            <h3 style="margin: 0;">Filtros</h3>
+        </div>
+        <div class="card-body">
+            <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div>
+                    <label for="rol">Rol:</label>
+                    <select name="rol" id="rol" class="form-control">
+                        <option value="">-- Todos --</option>
+                        {% for rol in roles %}
+                            <option value="{{ rol.id }}" {% if request.GET.rol|stringformat:"s" == rol.id|stringformat:"s" %}selected{% endif %}>
+                                {{ rol.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="area">Área:</label>
+                    <select name="area" id="area" class="form-control">
+                        <option value="">-- Todas --</option>
+                        {% for area in areas %}
+                            <option value="{{ area.id }}" {% if request.GET.area|stringformat:"s" == area.id|stringformat:"s" %}selected{% endif %}>
+                                {{ area.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="activo">Estado:</label>
+                    <select name="activo" id="activo" class="form-control">
+                        <option value="">-- Todos --</option>
+                        <option value="true" {% if request.GET.activo == "true" %}selected{% endif %}>Activos</option>
+                        <option value="false" {% if request.GET.activo == "false" %}selected{% endif %}>Inactivos</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        🔍 Filtrar
+                    </button>
+                    <a href="{% url 'usuarios:usuario_listar' %}" class="btn btn-secondary">
+                        ↻ Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tabla de Usuarios -->
+    {% if page_obj %}
+    <div class="card">
+        <div class="card-body" style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Nombre</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Email</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Rol</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 600;">Área</th>
+                        <th style="padding: 1rem; text-align: center; font-weight: 600;">Estado</th>
+                        <th style="padding: 1rem; text-align: center; font-weight: 600;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in page_obj %}
+                    <tr style="border-bottom: 1px solid #dee2e6; transition: background 0.2s;">
+                        <td style="padding: 1rem;">
+                            <strong>{{ usuario.nombre }}</strong>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <code style="background: #f4f4f4; padding: 0.25rem 0.5rem; border-radius: 3px;">
+                                {{ usuario.user.username }}
+                            </code>
+                        </td>
+                        <td style="padding: 1rem;">
+                            {% if usuario.rol.nivel_jerarquico == 1 %}
+                                <span class="badge badge-secondary">{{ usuario.rol.nombre }}</span>
+                            {% elif usuario.rol.nivel_jerarquico == 2 %}
+                                <span class="badge badge-dorado">{{ usuario.rol.nombre }}</span>
+                            {% else %}
+                                <span class="badge badge-success">{{ usuario.rol.nombre }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem;">
+                            {% if usuario.area %}
+                                {{ usuario.area.nombre }}
+                            {% else %}
+                                <span style="color: #999;">--</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            {% if usuario.is_active %}
+                                <span style="color: #28a745; font-weight: 600;">✓ Activo</span>
+                            {% else %}
+                                <span style="color: #dc3545; font-weight: 600;">✗ Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            <a href="{% url 'usuarios:usuario_detalle' usuario.id %}" 
+                               class="btn btn-sm" style="padding: 0.5rem 1rem; text-decoration: none;">
+                                👁 Ver
+                            </a>
+                            <a href="{% url 'usuarios:usuario_editar' usuario.id %}" 
+                               class="btn btn-sm" style="padding: 0.5rem 1rem; text-decoration: none; margin-left: 0.5rem; background: var(--color-dorado); color: white;">
+                                ✏ Editar
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Paginación -->
+    {% if is_paginated %}
+    <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 0.5rem; align-items: center;">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="btn btn-sm">« Primera</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm">‹ Anterior</a>
+        {% endif %}
+        
+        <span style="margin: 0 0.5rem;">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm">Siguiente ›</a>
+            <a href="?page={{ paginator.num_pages }}" class="btn btn-sm">Última »</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 2rem; border-radius: 4px; text-align: center;">
+        <p style="margin: 0; color: #6c757d;">No hay usuarios para mostrar</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .badge {
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        border-radius: 3px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .badge-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .badge-dorado {
+        background: var(--color-dorado);
+        color: black;
+    }
+    
+    .badge-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    table tbody tr:hover {
+        background: #f8f9fa;
+    }
+</style>
+{% endblock %}

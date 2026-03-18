@@ -36,10 +36,19 @@
                 <li><a href="{% url 'semaforo_config' %}" class="navbar-link {% if request.resolver_match.url_name == 'semaforo_config' %}active{% endif %}">Semáforo SLA</a></li>
                 {% endif %}
                 
+                {% if user.es_supervision_general %}
+                <li><a href="{% url 'usuarios:usuario_listar' %}" class="navbar-link">Usuarios</a></li>
+                {% endif %}
+                
                 <li class="user-info">
                     Usuario: <span>{{ user.nombre }}</span> ({{ user.rol }})
                 </li>
-                <li><a href="{% url 'logout' %}" class="navbar-link">Cerrar Sesión</a></li>
+                <li>
+                    <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="navbar-link navbar-link-button">Cerrar Sesión</button>
+                    </form>
+                </li>
             </ul>
         </div>
     </nav>

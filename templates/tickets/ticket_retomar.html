@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Retomar Ticket - {{ ticket.folio }}{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <a href="{% url 'ticket_detalle' ticket.id %}" style="color: var(--color-gris-oscuro);">{{ ticket.folio }}</a>
+        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
+        <span class="text-dorado">Retomar</span>
+    </div>
+
+    <div class="page-header">
+        <h1 class="page-title">Retomar Ticket {{ ticket.folio }}</h1>
+        <p class="page-subtitle">{{ ticket.nombre }}</p>
+    </div>
+
+    <div style="max-width: 650px; margin: 0 auto;">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Confirmar Retomar Ticket</h2>
+            </div>
+            <div class="card-body">
+                <div style="background: #e7f3ff; border-left: 4px solid #2196f3; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                    <p style="margin: 0; color: #0c5460;">
+                        <strong>ℹ️ Información:</strong> El ticket volverá a estar activo para continuar la atención.
+                    </p>
+                </div>
+
+                <form method="post" style="border-top: 1px solid #e0e0e0; padding-top: 1.5rem;">
+                    {% csrf_token %}
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="motivo" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+                            Motivo para retomar
+                        </label>
+                        <textarea
+                            name="motivo"
+                            id="motivo"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Describa por qué se retoma este ticket..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            ✓ Confirmar Retomar
+                        </button>
+                        <a href="{% url 'ticket_detalle' ticket.id %}" class="btn btn-secondary" style="flex: 1;">
+                            ✕ Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

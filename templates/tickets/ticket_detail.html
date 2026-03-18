@@ -19,18 +19,30 @@
                 <h1 class="page-title">{{ ticket.folio }}</h1>
                 <p class="page-subtitle">{{ ticket.nombre }}</p>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2" style="flex-wrap: wrap; align-items: center;">
                 <span class="sla-indicator sla-{{ ticket.sla_status }}" style="width: 40px; height: 40px;"></span>
-                
+
                 {% if ticket.estado == 'Asignado' and ticket.usuario_asignado == user %}
                 <a href="{% url 'ticket_atencion' ticket.id %}" class="btn btn-primary">
                     Iniciar Atención
                 </a>
                 {% endif %}
-                
+
                 {% if ticket.estado == 'En Atención' and ticket.usuario_asignado == user %}
                 <a href="{% url 'ticket_cerrar' ticket.id %}" class="btn btn-success">
                     Cerrar Ticket
+                </a>
+                {% endif %}
+
+                {% if user.es_jefe_area and ticket.estado == 'Asignado' or user.es_jefe_area and ticket.estado == 'En Atención' %}
+                <a href="{% url 'ticket_liberar' ticket.id %}" class="btn btn-warning" style="background: #ffc107;">
+                    Liberar Ticket
+                </a>
+                {% endif %}
+
+                {% if user.es_jefe_area and ticket.estado == 'Cerrado' or user.es_jefe_area and ticket.estado == 'Cerrado Automático' %}
+                <a href="{% url 'ticket_retomar' ticket.id %}" class="btn btn-danger">
+                    Retomar Ticket
                 </a>
                 {% endif %}
             </div>
