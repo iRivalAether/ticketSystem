@@ -390,9 +390,17 @@ def reportes(request):
     stats_sla = TicketService.obtener_estadisticas_sla()
     stats_tiempos = TicketService.obtener_promedios_tiempos()
     
+    # Obtener catálogos para filtros
+    areas = Area.objects.filter(is_active=True)
+    jornadas = Jornada.objects.filter(is_active=True)
+    prioridades = Prioridad.objects.filter(is_active=True)
+    
     context = {
         'stats_sla': stats_sla,
         'stats_tiempos': stats_tiempos,
+        'areas': areas,
+        'jornadas': jornadas,
+        'prioridades': prioridades,
     }
     
     return render(request, 'reportes/dashboard.html', context)
@@ -505,3 +513,214 @@ def ticket_retomar(request, ticket_id):
     }
     
     return render(request, 'tickets/ticket_retomar.html', context)
+
+
+@login_required
+def reportes_datos_filtrados_api(request):
+    """
+    API para obtener datos de reportes con filtros.
+    
+    Query params:
+    - periodo: '1d' (hoy), '7d' (últimos 7), '30d' (últimos 30), 'custom' (requiere fecha_inicio/fecha_fin)
+    - fecha_inicio: formato ISO (solo si periodo=custom)
+    - fecha_fin: formato ISO (solo si periodo=custom)
+    - area: ID del área (opcional)
+    - jornada: ID de la jornada (opcional)
+    - prioridad: ID de la prioridad (opcional)
+    """
+    from django.utils import timezone
+    
+    # Validar permiso
+    if not request.user.puede_ver_reportes_globales():
+        return JsonResponse({'error': 'No tienes permiso'}, status=403)
+    
+    # Obtener filtros
+    periodo = request.GET.get('periodo', '30d')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
+    area_id = request.GET.get('area')
+    jornada_id = request.GET.get('jornada')
+    prioridad_id = request.GET.get('prioridad')
+    
+    # Calcular rango de fechas
+    now = timezone.now()
+    if periodo == '1d':
+        fecha_inicio = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        fecha_fin = now
+    elif periodo == '7d':
+        fecha_inicio = now - timedelta(days=7)
+        fecha_fin = now
+    elif periodo == '30d':
+        fecha_inicio = now - timedelta(days=30)
+        fecha_fin = now
+    elif periodo == 'custom' and fecha_inicio_str and fecha_fin_str:
+        try:
+            fecha_inicio = datetime.fromisoformat(fecha_inicio_str)
+            fecha_fin = datetime.fromisoformat(fecha_fin_str)
+        except:
+            return JsonResponse({'error': 'Fechas inválidas'}, status=400)
+    else:
+        fecha_inicio = now - timedelta(days=30)
+        fecha_fin = now
+    
+    # Construir queryset base
+    tickets_qs = Ticket.objects.filter(
+        created_at__gte=fecha_inicio,
+        created_at__lte=fecha_fin,
+        is_active=True
+    ).select_related('area', 'jornada', 'prioridad', 'sla')
+    
+    # Aplicar filtros
+    if area_id:
+        tickets_qs = tickets_qs.filter(area_id=area_id)
+    if jornada_id:
+        tickets_qs = tickets_qs.filter(jornada_id=jornada_id)
+    if prioridad_id:
+        tickets_qs = tickets_qs.filter(prioridad_id=prioridad_id)
+
+    tickets = list(tickets_qs)
+
+    # Calcular estadísticas SLA y tiempos sobre tickets filtrados
+    sla_verde = 0
+    sla_amarillo = 0
+    sla_rojo = 0
+    tiempos_atencion = []
+    tiempos_resolucion = []
+
+    for ticket in tickets:
+        if ticket.sla_status == 'rojo':
+            sla_rojo += 1
+        elif ticket.sla_status == 'amarillo':
+            sla_amarillo += 1
+        else:
+            sla_verde += 1
+
+        if ticket.tiempo_primera_atencion_minutos is not None:
+            tiempos_atencion.append(ticket.tiempo_primera_atencion_minutos)
+        if ticket.tiempo_resolucion_horas is not None:
+            tiempos_resolucion.append(ticket.tiempo_resolucion_horas)
+
+    total_tickets = len(tickets)
+    cumplimiento_porcentaje = (sla_verde / total_tickets * 100) if total_tickets else 0
+
+    stats_sla = {
+        'total_tickets': total_tickets,
+        'sla_verde': sla_verde,
+        'sla_amarillo': sla_amarillo,
+        'sla_rojo': sla_rojo,
+        'cumplimiento_porcentaje': round(cumplimiento_porcentaje, 2),
+    }
+
+    stats_tiempos = {
+        'promedio_primera_atencion_minutos': round(sum(tiempos_atencion) / len(tiempos_atencion), 2) if tiempos_atencion else 0,
+        'promedio_resolucion_horas': round(sum(tiempos_resolucion) / len(tiempos_resolucion), 2) if tiempos_resolucion else 0,
+    }
+
+    # Desglosar por área, jornada, prioridad
+    desglose_area = {}
+    desglose_jornada = {}
+    desglose_prioridad = {}
+
+    for ticket in tickets:
+        area_nombre = ticket.area.nombre if ticket.area else 'Sin área'
+        jornada_nombre = ticket.jornada.nombre if ticket.jornada else 'Sin jornada'
+        prioridad_nombre = ticket.prioridad.nombre if ticket.prioridad else 'Sin prioridad'
+        estado_sla = ticket.sla_status
+
+        if area_nombre not in desglose_area:
+            desglose_area[area_nombre] = {'total': 0, 'verde': 0, 'amarillo': 0, 'rojo': 0}
+        if jornada_nombre not in desglose_jornada:
+            desglose_jornada[jornada_nombre] = {'total': 0, 'verde': 0, 'amarillo': 0, 'rojo': 0}
+        if prioridad_nombre not in desglose_prioridad:
+            desglose_prioridad[prioridad_nombre] = {'total': 0, 'verde': 0, 'amarillo': 0, 'rojo': 0}
+
+        desglose_area[area_nombre]['total'] += 1
+        desglose_jornada[jornada_nombre]['total'] += 1
+        desglose_prioridad[prioridad_nombre]['total'] += 1
+
+        if estado_sla == 'rojo':
+            desglose_area[area_nombre]['rojo'] += 1
+            desglose_jornada[jornada_nombre]['rojo'] += 1
+            desglose_prioridad[prioridad_nombre]['rojo'] += 1
+        elif estado_sla == 'amarillo':
+            desglose_area[area_nombre]['amarillo'] += 1
+            desglose_jornada[jornada_nombre]['amarillo'] += 1
+            desglose_prioridad[prioridad_nombre]['amarillo'] += 1
+        else:
+            desglose_area[area_nombre]['verde'] += 1
+            desglose_jornada[jornada_nombre]['verde'] += 1
+            desglose_prioridad[prioridad_nombre]['verde'] += 1
+
+    # Series temporales (por hora, últimas 24 horas)
+    series_temporal = []
+    hora_base = now.replace(minute=0, second=0, microsecond=0) - timedelta(hours=23)
+    for i in range(24):
+        hora_inicio = hora_base + timedelta(hours=i)
+        hora_fin = hora_inicio + timedelta(hours=1)
+        count = sum(1 for ticket in tickets if hora_inicio <= ticket.created_at < hora_fin)
+        series_temporal.append({
+            'hora': hora_inicio.isoformat(),
+            'count': count
+        })
+
+    # Heatmap: carga por jornada y hora (24 columnas)
+    jornadas_activas = list(Jornada.objects.filter(is_active=True).values_list('nombre', flat=True))
+    heatmap_jornada = {nombre: [0] * 24 for nombre in jornadas_activas}
+
+    for ticket in tickets:
+        jornada_nombre = ticket.jornada.nombre if ticket.jornada else 'Sin jornada'
+        if jornada_nombre not in heatmap_jornada:
+            heatmap_jornada[jornada_nombre] = [0] * 24
+        hora_ticket = ticket.created_at.astimezone(timezone.get_current_timezone()).hour
+        heatmap_jornada[jornada_nombre][hora_ticket] += 1
+    
+    return JsonResponse({
+        'periodo': {
+            'inicio': fecha_inicio.isoformat(),
+            'fin': fecha_fin.isoformat()
+        },
+        'estadisticas': {
+            'sla': stats_sla,
+            'tiempos': stats_tiempos,
+            'total_tickets': total_tickets,
+        },
+        'desglose': {
+            'por_area': desglose_area,
+            'por_jornada': desglose_jornada,
+            'por_prioridad': desglose_prioridad,
+        },
+        'series_temporal': series_temporal,
+        'heatmap_jornada': heatmap_jornada,
+    })
+
+
+@login_required
+def actividades_recientes_api(request):
+    """
+    API para obtener cambios recientes de tickets y usuarios.
+    Útil para detectar cambios en tiempo real.
+    """
+    from apps.tickets.models import TicketEstadoHistorial
+    
+    limit = int(request.GET.get('limit', 10))
+    
+    # Historial de cambios de estado
+    cambios = TicketEstadoHistorial.objects.select_related(
+        'ticket', 'usuario'
+    ).order_by('-created_at')[:limit]
+    
+    cambios_data = []
+    for cambio in cambios:
+        cambios_data.append({
+            'ticket_id': cambio.ticket.id,
+            'ticket_numero': cambio.ticket.numero,
+            'usuario': cambio.usuario.nombre,
+            'estado_anterior': cambio.estado_anterior,
+            'estado_nuevo': cambio.estado_nuevo,
+            'timestamp': cambio.created_at.isoformat(),
+        })
+    
+    return JsonResponse({
+        'cambios_recientes': cambios_data,
+        'total': len(cambios_data),
+    })

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load time_filters %}
 
 {% block title %}{{ ticket.folio }} - Detalle del Ticket{% endblock %}
 
@@ -158,7 +159,10 @@
                             <div style="flex: 1;">
                                 <p style="margin: 0; font-weight: 600;">{{ estado.get_estado_display }}</p>
                                 <p style="margin: 0; font-size: 0.875rem; color: var(--color-gris-oscuro);">
-                                    {{ estado.usuario.nombre }} - {{ estado.fecha|date:"d/m/Y H:i" }}
+                                    {{ estado.usuario.nombre }} -
+                                    <span data-timestamp="{{ estado.fecha|timestamp_iso }}">
+                                        {{ estado.fecha|time_since_human }}
+                                    </span>
                                 </p>
                                 {% if estado.comentario %}
                                 <p style="margin-top: 0.5rem; font-size: 0.875rem; padding: 0.5rem; background-color: var(--color-gris-claro); border-radius: 4px;">
@@ -228,7 +232,9 @@
                         Fecha de Creación
                     </p>
                     <p style="margin-bottom: 1rem; font-weight: 600;">
-                        {{ ticket.created_at|date:"d/m/Y H:i" }}
+                        <span data-timestamp="{{ ticket.created_at|timestamp_iso }}">
+                            {{ ticket.created_at|time_since_human }}
+                        </span>
                     </p>
                     
                     {% if ticket.fecha_asignacion %}
@@ -236,7 +242,9 @@
                         Fecha de Asignación
                     </p>
                     <p style="margin-bottom: 1rem; font-weight: 600;">
-                        {{ ticket.fecha_asignacion|date:"d/m/Y H:i" }}
+                        <span data-timestamp="{{ ticket.fecha_asignacion|timestamp_iso }}">
+                            {{ ticket.fecha_asignacion|time_since_human }}
+                        </span>
                     </p>
                     {% endif %}
                     
@@ -245,7 +253,9 @@
                         Inicio de Atención
                     </p>
                     <p style="margin-bottom: 1rem; font-weight: 600;">
-                        {{ ticket.fecha_inicio_atencion|date:"d/m/Y H:i" }}
+                        <span data-timestamp="{{ ticket.fecha_inicio_atencion|timestamp_iso }}">
+                            {{ ticket.fecha_inicio_atencion|time_since_human }}
+                        </span>
                     </p>
                     {% endif %}
                     
@@ -254,7 +264,9 @@
                         Fecha de Cierre
                     </p>
                     <p style="margin-bottom: 0; font-weight: 600;">
-                        {{ ticket.fecha_cierre|date:"d/m/Y H:i" }}
+                        <span data-timestamp="{{ ticket.fecha_cierre|timestamp_iso }}">
+                            {{ ticket.fecha_cierre|time_since_human }}
+                        </span>
                     </p>
                     {% endif %}
                 </div>

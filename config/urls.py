@@ -7,34 +7,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
 
 # Importar vistas
 from apps.tickets import views as ticket_views
 
 # API Documentation
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Sistema de Gestión de Tickets API",
-        default_version='v1',
-        description="""
-        API del Sistema de Gestión de Procesos de Soporte (Ticketing)
-        
-        Características:
-        - Gestión de tickets con control de SLA
-        - Jerarquía de 3 niveles de usuarios
-        - Seguimiento FIFO (First In, First Out)
-        - Reportes y KPIs avanzados
-        - Control de jornadas (Matutina, Vespertina, Nocturna)
-        """,
-        terms_of_service="https://www.example.com/terms/",
-        contact=openapi.Contact(email="soporte@example.com"),
-        license=openapi.License(name="Proprietary"),
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
 
 urlpatterns = [
     # Admin
@@ -71,10 +48,9 @@ urlpatterns = [
     # AJAX / Live stats
     path('api/dashboard/stats/', ticket_views.dashboard_stats_api, name='dashboard_stats_api'),
     path('api/reportes/stats/', ticket_views.reportes_stats_api, name='reportes_stats_api'),
+    path('api/reportes/datos-filtrados/', ticket_views.reportes_datos_filtrados_api, name='reportes-datos-filtrados'),
+    path('api/tickets/actividades-recientes/', ticket_views.actividades_recientes_api, name='actividades-recientes'),
     
-    # API Documentation
-    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
     # API Endpoints (pendientes de implementar)
     # path('api/v1/usuarios/', include('apps.usuarios.urls')),

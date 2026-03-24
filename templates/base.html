@@ -9,6 +9,9 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
+    <!-- Chart.js CDN para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -77,6 +80,12 @@
         <p>Desarrollado con <span class="text-dorado">Django</span></p>
     </footer>
     {% endif %}
+    
+    <!-- Scripts para gráficos y realtime updates -->
+    {% load static %}
+    <script src="{% static 'js/charts.js' %}"></script>
+    <script src="{% static 'js/timestamps.js' %}"></script>
+    <script src="{% static 'js/realtime-updates.js' %}"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

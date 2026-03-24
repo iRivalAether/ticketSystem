@@ -6,8 +6,13 @@
 {% block content %}
 <div class="main-container">
     <div class="page-header">
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Bienvenido, {{ user.nombre }} - {{ user.rol }}</p>
+        <div>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Bienvenido, {{ user.nombre }} - {{ user.rol }}</p>
+        </div>
+        <div style="text-align: right; font-size: 0.875rem; color: var(--color-gris-oscuro);">
+            <p id="last-update-time" style="margin: 0;">Actualizando datos...</p>
+        </div>
     </div>
     
     <!-- Estadísticas Principales -->
@@ -213,34 +218,11 @@
 
 {% block extra_js %}
 <script>
-    const refreshDashboardStats = async () => {
-        try {
-            const response = await fetch("{% url 'dashboard_stats_api' %}", {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            if (!response.ok) return;
-            const data = await response.json();
-
-            const setText = (id, value) => {
-                const element = document.getElementById(id);
-                if (!element) return;
-                element.classList.add('updating');
-                element.textContent = value;
-                setTimeout(() => element.classList.remove('updating'), 250);
-            };
-
-            setText('kpi-mis-tickets', data.mis_tickets_abiertos);
-            setText('kpi-en-atencion', data.tickets_en_atencion);
-            setText('kpi-sla-critico', data.tickets_sla_critico);
-            setText('kpi-cumplimiento', `${data.cumplimiento_sla}%`);
-            setText('kpi-primera-atencion', data.promedio_primera_atencion);
-            setText('kpi-resolucion', data.promedio_resolucion);
-            setText('kpi-semaforo-config', `Amarillo: ${data.semaforo_config.warning_percentage}% | Rojo: ${data.semaforo_config.danger_percentage}%`);
-        } catch (error) {
-            console.error('No se pudieron actualizar las métricas del dashboard', error);
-        }
-    };
-
-    setInterval(refreshDashboardStats, 15000);
+    // Los scripts de realtime-updates.js se cargan automáticamente desde base.html
+    // Actualización cad 2 segundos (configurable en realtime-updates.js)
+    document.addEventListener('DOMContentLoaded', function() {
+        setupRealtimePolling(2000); // Polling cada 2 segundos
+        setupFilterListeners(); // Listeners para filtros
+    });
 </script>
 {% endblock %}

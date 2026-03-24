@@ -1,15 +1,72 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load time_filters %}
 
 {% block title %}Reportes - Sistema de Tickets{% endblock %}
 
 {% block content %}
 <div class="main-container">
     <div class="page-header">
-        <h1 class="page-title">📊 Reportes y Estadísticas</h1>
-        <p class="page-subtitle">Vista global del sistema</p>
+        <div>
+            <h1 class="page-title">📊 Reportes y Estadísticas</h1>
+            <p class="page-subtitle">Vista global del sistema con gráficos en tiempo real</p>
+        </div>
+        <div style="text-align: right; font-size: 0.875rem; color: var(--color-gris-oscuro);">
+            <p id="last-update-time" style="margin: 0;">Actualizando datos...</p>
+        </div>
     </div>
     
-    <!-- Estadísticas SLA -->
+    <!-- Filtros Avanzados -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🔍 Filtros</h2>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div>
+                    <label for="filter-periodo"><strong>Período</strong></label>
+                    <select id="filter-periodo" class="form-control" style="margin-top: 0.5rem;">
+                        <option value="1d">Hoy</option>
+                        <option value="7d">Últimos 7 días</option>
+                        <option value="30d" selected>Últimos 30 días</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="filter-area"><strong>Área</strong></label>
+                    <select id="filter-area" class="form-control" style="margin-top: 0.5rem;">
+                        <option value="">Todas</option>
+                        {% for area in areas %}
+                        <option value="{{ area.id }}">{{ area.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="filter-jornada"><strong>Jornada</strong></label>
+                    <select id="filter-jornada" class="form-control" style="margin-top: 0.5rem;">
+                        <option value="">Todas</option>
+                        {% for jornada in jornadas %}
+                        <option value="{{ jornada.id }}">{{ jornada.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="filter-prioridad"><strong>Prioridad</strong></label>
+                    <select id="filter-prioridad" class="form-control" style="margin-top: 0.5rem;">
+                        <option value="">Todas</option>
+                        {% for prioridad in prioridades %}
+                        <option value="{{ prioridad.id }}">{{ prioridad.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Estadísticas Principales -->
     <div class="card">
         <div class="card-header">
             <h2 class="card-title">Control de SLA</h2>
@@ -17,93 +74,148 @@
         <div class="card-body">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number" id="rep-verde" style="color: var(--color-exito);">
-                        {{ stats_sla.verde }}
+                    <div class="stat-number" id="sla-verde-count" style="color: var(--color-exito);">
+                        {{ stats_sla.sla_verde }}
                     </div>
                     <div class="stat-label">SLA Verde</div>
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-number" id="rep-amarillo" style="color: var(--color-advertencia);">
-                        {{ stats_sla.amarillo }}
+                    <div class="stat-number" id="sla-amarillo-count" style="color: var(--color-advertencia);">
+                        {{ stats_sla.sla_amarillo }}
                     </div>
                     <div class="stat-label">SLA Amarillo</div>
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-number" id="rep-rojo" style="color: var(--color-peligro);">
-                        {{ stats_sla.rojo }}
+                    <div class="stat-number" id="sla-rojo-count" style="color: var(--color-peligro);">
+                        {{ stats_sla.sla_rojo }}
                     </div>
                     <div class="stat-label">SLA Rojo</div>
                 </div>
                 
                 <div class="stat-card destacado">
-                    <div class="stat-number" id="rep-cumplimiento">
-                        {{ stats_sla.cumplimiento }}%
+                    <div class="stat-number" id="cumplimiento-sla">
+                        {{ stats_sla.cumplimiento_porcentaje|floatformat:1 }}%
                     </div>
                     <div class="stat-label">Cumplimiento</div>
                 </div>
-            </div>
 
-            <div class="stats-grid" style="margin-top: 1rem;">
                 <div class="stat-card">
-                    <div class="stat-number" id="rep-promedio-atencion">{{ stats_tiempos.promedio_primera_atencion_minutos }}</div>
+                    <div class="stat-number" id="promedio-atencion">{{ stats_tiempos.promedio_primera_atencion_minutos|floatformat:1 }}</div>
                     <div class="stat-label">Promedio Primera Atención (min)</div>
                 </div>
+
                 <div class="stat-card">
-                    <div class="stat-number" id="rep-promedio-resolucion">{{ stats_tiempos.promedio_resolucion_horas }}</div>
+                    <div class="stat-number" id="promedio-resolucion">{{ stats_tiempos.promedio_resolucion_horas|floatformat:1 }}</div>
                     <div class="stat-label">Promedio Resolución (h)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="rep-cerrados-tiempo">{{ stats_sla.cerrados_en_tiempo }}</div>
-                    <div class="stat-label">Tickets Cerrados en Tiempo</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="rep-total-cerrados">{{ stats_sla.total_cerrados }}</div>
-                    <div class="stat-label">Tickets Cerrados Totales</div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Información Adicional -->
-    <div class="alert alert-info">
-        <strong>Nota:</strong> Los reportes detallados por jornada, área y usuario estarán disponibles en la siguiente versión.
+    <!-- Gráficos Avanzados -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+        <!-- 1. SLA Gauge -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Gauge: Cumplimiento SLA</h3>
+            </div>
+            <div class="card-body chart-wrapper">
+                <canvas id="chart-sla-gauge"></canvas>
+            </div>
+        </div>
+        
+        <!-- 2. Tendencia Línea -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Tendencia: Tickets Creados por Hora</h3>
+            </div>
+            <div class="card-body chart-wrapper">
+                <canvas id="chart-tendencia-linea"></canvas>
+            </div>
+        </div>
+        
+        <!-- 3. Distribución por Área -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Distribución: Por Área</h3>
+            </div>
+            <div class="card-body chart-wrapper">
+                <canvas id="chart-distribucion-area"></canvas>
+            </div>
+        </div>
+        
+        <!-- 4. Distribución por Jornada -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Distribución: Por Jornada</h3>
+            </div>
+            <div class="card-body chart-wrapper">
+                <canvas id="chart-distribucion-jornada"></canvas>
+            </div>
+        </div>
+        
+        <!-- 5. Tiempos Bar -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Bar: Tiempos Promedio por Área</h3>
+            </div>
+            <div class="card-body chart-wrapper">
+                <canvas id="chart-tiempos-bar"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Heatmap Jornada (opcional) -->
+    <div class="card" style="margin-top: 1.5rem;">
+        <div class="card-header">
+            <h3 class="card-title">🔥 Heatmap: Carga por Jornada y Hora</h3>
+        </div>
+        <div class="card-body">
+            <div id="chart-heatmap-jornada" style="overflow-x: auto;"></div>
+        </div>
     </div>
 </div>
+
+<style>
+    .chart-wrapper {
+        position: relative;
+        height: 300px;
+        min-height: 300px;
+        overflow: hidden;
+    }
+
+    .chart-wrapper canvas {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+    }
+
+    .heatmap-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+    
+    .heatmap-table th,
+    .heatmap-table td {
+        border: 1px solid var(--color-borde);
+        padding: 0.5rem;
+    }
+    
+    .heatmap-table th {
+        background-color: var(--color-gris-claro);
+        font-weight: bold;
+    }
+    
+    .jornada-label {
+        font-weight: bold;
+        background-color: var(--color-gris-claro);
+    }
+</style>
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    const refreshReportesStats = async () => {
-        try {
-            const response = await fetch("{% url 'reportes_stats_api' %}", {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            if (!response.ok) return;
-            const data = await response.json();
-
-            const setText = (id, value) => {
-                const element = document.getElementById(id);
-                if (!element) return;
-                element.classList.add('updating');
-                element.textContent = value;
-                setTimeout(() => element.classList.remove('updating'), 250);
-            };
-
-            setText('rep-verde', data.stats_sla.verde);
-            setText('rep-amarillo', data.stats_sla.amarillo);
-            setText('rep-rojo', data.stats_sla.rojo);
-            setText('rep-cumplimiento', `${data.stats_sla.cumplimiento}%`);
-            setText('rep-promedio-atencion', data.stats_tiempos.promedio_primera_atencion_minutos);
-            setText('rep-promedio-resolucion', data.stats_tiempos.promedio_resolucion_horas);
-            setText('rep-cerrados-tiempo', data.stats_sla.cerrados_en_tiempo);
-            setText('rep-total-cerrados', data.stats_sla.total_cerrados);
-        } catch (error) {
-            console.error('No se pudieron actualizar las métricas de reportes', error);
-        }
-    };
-
-    setInterval(refreshReportesStats, 15000);
-</script>
 {% endblock %}

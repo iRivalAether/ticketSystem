@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load time_filters %}
 
 {% block title %}Tickets - Sistema de Tickets{% endblock %}
 
@@ -114,7 +115,11 @@
                             <td style="text-align: center;">
                                 <span class="sla-indicator sla-{{ ticket.sla_status }}"></span>
                             </td>
-                            <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <span data-timestamp="{{ ticket.created_at|timestamp_iso }}">
+                                    {{ ticket.created_at|time_since_human }}
+                                </span>
+                            </td>
                             <td>
                                 <a href="{% url 'ticket_detalle' ticket.id %}" class="btn btn-secondary btn-sm">
                                     Ver
