@@ -32,13 +32,37 @@ venv\Scripts\activate  # Windows
 source venv/bin/activate  # Linux/Mac
 ```
 
-### 2. Instalar dependencias
+### 2. Opción A: Instalación Automática (Recomendado) ⚡
+
+**Windows - Doble clic para ejecutar:**
+
+```batch
+instalar_dependencias.bat
+ejecutar_proyecto.bat
+```
+
+**O con PowerShell:**
+
+```powershell
+.\instalar_dependencias.ps1
+.\ejecutar_proyecto.ps1
+```
+
+**¿Qué hacen estos scripts?**
+- ✅ `instalar_dependencias.bat/ps1`: Crea venv, instala pip, descarga todas las dependencias
+- ✅ `ejecutar_proyecto.bat/ps1`: Activa venv, verifica el proyecto, inicia servidor en `http://localhost:8000`
+
+---
+
+### 2. Opción B: Instalación Manual
+
+#### Instalar dependencias
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configurar variables de entorno
+#### Configurar variables de entorno
 
 ```bash
 cp .env.example .env
@@ -53,20 +77,20 @@ DB_HOST=localhost
 DB_PORT=3306
 ```
 
-### 4. Crear base de datos
+#### Crear base de datos
 
 ```sql
 CREATE DATABASE ticket_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 5. Ejecutar migraciones
+#### Ejecutar migraciones
 
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 6. Inicializar datos básicos
+#### Inicializar datos básicos
 
 ```bash
 python manage.py init_data
@@ -79,19 +103,22 @@ Esto crea:
 - 4 SLAs predefinidos
 - 3 jornadas
 
-### 7. Crear superusuario
+#### Crear superusuario
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 8. Ejecutar servidor
+#### Ejecutar servidor
 
 ```bash
 python manage.py runserver
 ```
 
-Acceder a:
+---
+
+### Acceder al Sistema
+
 - **Aplicación Web**: http://localhost:8000 ← **¡Interfaz principal!**
 - **Admin Panel**: http://localhost:8000/admin
 - **API Docs (Swagger)**: http://localhost:8000/api/docs
