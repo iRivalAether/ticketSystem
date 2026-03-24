@@ -34,23 +34,56 @@ source venv/bin/activate  # Linux/Mac
 
 ### 2. Opción A: Instalación Automática (Recomendado) ⚡
 
-**Windows - Doble clic para ejecutar:**
+#### Flujo Completo - Primera vez:
 
-```batch
-instalar_dependencias.bat
-ejecutar_proyecto.bat
-```
+1. **Instalar dependencias:**
+   ```batch
+   instalar_dependencias.bat
+   ```
+   o
+   ```powershell
+   .\instalar_dependencias.ps1
+   ```
 
-**O con PowerShell:**
+2. **Ejecutar migraciones:**
+   ```batch
+   ejecutar_migraciones.bat
+   ```
+   o
+   ```powershell
+   .\ejecutar_migraciones.ps1
+   ```
 
-```powershell
-.\instalar_dependencias.ps1
-.\ejecutar_proyecto.ps1
-```
+3. **Inicializar datos:**
+   ```batch
+   inicializar_datos.bat
+   ```
+   o
+   ```powershell
+   .\inicializar_datos.ps1
+   ```
 
-**¿Qué hacen estos scripts?**
-- ✅ `instalar_dependencias.bat/ps1`: Crea venv, instala pip, descarga todas las dependencias
-- ✅ `ejecutar_proyecto.bat/ps1`: Activa venv, verifica el proyecto, inicia servidor en `http://localhost:8000`
+4. **Ejecutar servidor:**
+   ```batch
+   ejecutar_proyecto.bat
+   ```
+   o
+   ```powershell
+   .\ejecutar_proyecto.ps1
+   ```
+
+#### Scripts Disponibles:
+
+| Script | Función | Cuándo usar |
+|--------|---------|------------|
+| `instalar_dependencias.*` | Crea venv e instala todas las dependencias | Solo la primera vez |
+| `ejecutar_migraciones.*` | Ejecuta makemigrations + migrate | Después de instalar dependencias |
+| `inicializar_datos.*` | Carga roles, áreas, prioridades, SLAs y jornadas | Después de migraciones |
+| `ejecutar_proyecto.*` | Inicia el servidor Django | Cada vez que quieras correr la app |
+
+#### Acceso Rápido:
+- **Aplicación Web**: http://localhost:8000
+- **Admin Panel**: http://localhost:8000/admin
 
 ---
 
