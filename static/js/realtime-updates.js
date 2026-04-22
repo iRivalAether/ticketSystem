@@ -31,6 +31,45 @@ function setupRealtimePolling(intervalMs = 2000) {
     }
 }
 
+function getReportesRangeValues() {
+    const periodo = getFilterValue('periodo', '30d');
+    const fechaInicio = getFilterValue('fecha_inicio', '');
+    const fechaFin = getFilterValue('fecha_fin', '');
+
+    return {
+        periodo,
+        fecha_inicio: periodo === 'custom' ? fechaInicio : '',
+        fecha_fin: periodo === 'custom' ? fechaFin : ''
+    };
+}
+
+function toggleCustomDateRange() {
+    const container = document.getElementById('custom-date-range');
+    const periodo = getFilterValue('periodo', '30d');
+
+    if (container) {
+        container.style.display = periodo === 'custom' ? 'grid' : 'none';
+    }
+}
+
+function updateReportesExportLink() {
+    const link = document.getElementById('export-report-csv');
+    if (!link) {
+        return;
+    }
+
+    const params = new URLSearchParams(getReportesRangeValues());
+    const area = getFilterValue('area', '');
+    const jornada = getFilterValue('jornada', '');
+    const prioridad = getFilterValue('prioridad', '');
+
+    if (area) params.set('area', area);
+    if (jornada) params.set('jornada', jornada);
+    if (prioridad) params.set('prioridad', prioridad);
+
+    link.href = '/reportes/exportar/csv/?' + params.toString();
+}
+
 /**
  * Setup polling para dashboard principal
  * Actualiza KPIs: mis_tickets_abiertos, tickets_en_atencion, cumplimiento_sla, etc.
@@ -97,17 +136,16 @@ function setupReportesPolling() {
 }
 
 function fetchReportesData() {
-    const periodo = getFilterValue('periodo', '30d');
+    const values = getReportesRangeValues();
+    const params = new URLSearchParams(values);
+
     const area = getFilterValue('area', '');
     const jornada = getFilterValue('jornada', '');
     const prioridad = getFilterValue('prioridad', '');
 
-    const params = new URLSearchParams({
-        periodo: periodo,
-        ...(area && { area: area }),
-        ...(jornada && { jornada: jornada }),
-        ...(prioridad && { prioridad: prioridad })
-    });
+    if (area) params.set('area', area);
+    if (jornada) params.set('jornada', jornada);
+    if (prioridad) params.set('prioridad', prioridad);
 
     fetch('/api/reportes/datos-filtrados/?' + params.toString())
         .then(response => response.json())
@@ -217,12 +255,16 @@ function updateLastUpdateTime() {
  * Cuando el usuario cambia un filtro, resetear polling para obtener nuevos datos inmediatamente
  */
 function setupFilterListeners() {
-    ['periodo', 'area', 'jornada', 'prioridad'].forEach(filtro => {
+    ['periodo', 'area', 'jornada', 'prioridad', 'fecha_inicio', 'fecha_fin'].forEach(filtro => {
         const el = document.getElementById('filter-' + filtro) || document.getElementById(filtro);
         if (el) {
             el.addEventListener('change', function() {
                 // Guardar en localStorage
                 localStorage.setItem('filter_' + filtro, this.value);
+                if (filtro === 'periodo') {
+                    toggleCustomDateRange();
+                }
+                updateReportesExportLink();
                 fetchReportesData();
             });
         }
@@ -235,5 +277,7 @@ function setupFilterListeners() {
 document.addEventListener('DOMContentLoaded', function() {
     setupRealtimePolling(2000); // Polling cada 2 segundos
     setupFilterListeners();
+    toggleCustomDateRange();
+    updateReportesExportLink();
     updateLastUpdateTime();
 });

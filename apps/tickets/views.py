@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 from apps.tickets.models import Ticket, Area, Prioridad, Jornada, SemaforoSLAConfig
 from apps.tickets.forms import TicketCreateForm, TicketTriajeForm, TicketCerrarForm, SemaforoSLAConfigForm
+from apps.reportes.forms import RetroalimentacionTicketForm
 from services.ticket_service import TicketService
 
 
@@ -166,13 +167,44 @@ def ticket_detail(request, ticket_id):
     
     # Obtener historial
     historial_estados = ticket.historial_estados.all().order_by('-fecha')
+    retroalimentaciones = ticket.retroalimentaciones.select_related('creado_por').all()
     
     context = {
         'ticket': ticket,
         'historial_estados': historial_estados,
+        'retroalimentaciones': retroalimentaciones,
+        'feedback_form': RetroalimentacionTicketForm(initial={
+            'especialidad': ticket.area.nombre if ticket.area else '',
+        }),
     }
     
     return render(request, 'tickets/ticket_detail.html', context)
+
+
+@login_required
+def ticket_feedback(request, ticket_id):
+    """Registrar retroalimentación para un ticket."""
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+
+    if not request.user.puede_ver_ticket(ticket):
+        messages.error(request, 'No tiene permisos para registrar retroalimentación en este ticket.')
+        return redirect('dashboard')
+
+    if request.method != 'POST':
+        return redirect('ticket_detalle', ticket_id=ticket.id)
+
+    form = RetroalimentacionTicketForm(request.POST)
+    if form.is_valid():
+        feedback = form.save(commit=False)
+        feedback.ticket = ticket
+        feedback.area = ticket.area
+        feedback.creado_por = request.user
+        feedback.save()
+        messages.success(request, 'Retroalimentación registrada correctamente.')
+    else:
+        messages.error(request, 'No se pudo registrar la retroalimentación.')
+
+    return redirect('ticket_detalle', ticket_id=ticket.id)
 
 
 @login_required
@@ -557,6 +589,10 @@ def reportes_datos_filtrados_api(request):
         try:
             fecha_inicio = datetime.fromisoformat(fecha_inicio_str)
             fecha_fin = datetime.fromisoformat(fecha_fin_str)
+            if timezone.is_naive(fecha_inicio):
+                fecha_inicio = timezone.make_aware(fecha_inicio, timezone.get_current_timezone())
+            if timezone.is_naive(fecha_fin):
+                fecha_fin = timezone.make_aware(fecha_fin, timezone.get_current_timezone())
         except:
             return JsonResponse({'error': 'Fechas inválidas'}, status=400)
     else:

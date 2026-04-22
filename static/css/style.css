@@ -120,6 +120,31 @@ body {
     font-weight: bold;
 }
 
+.navbar-link-alert {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background-color: var(--color-peligro);
+    color: var(--color-blanco);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.input-invalid {
+    border-color: var(--color-peligro) !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+}
+
 /* ============================================
    LAYOUT PRINCIPAL
    ============================================ */

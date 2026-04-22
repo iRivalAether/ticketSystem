@@ -35,6 +35,15 @@
                 <li><a href="{% url 'reportes' %}" class="navbar-link">Reportes</a></li>
                 {% endif %}
 
+                {% if sla_alertas_vencidas %}
+                <li>
+                    <a href="{% url 'reportes' %}#chart-sla-gauge" class="navbar-link navbar-link-alert">
+                        Alertas SLA
+                        <span class="navbar-badge">{{ sla_alertas_vencidas }}</span>
+                    </a>
+                </li>
+                {% endif %}
+
                 {% if user.es_jefe_area or user.is_superuser %}
                 <li><a href="{% url 'semaforo_config' %}" class="navbar-link {% if request.resolver_match.url_name == 'semaforo_config' %}active{% endif %}">Semáforo SLA</a></li>
                 {% endif %}
@@ -84,6 +93,7 @@
     <!-- Scripts para gráficos y realtime updates -->
     {% load static %}
     <script src="{% static 'js/charts.js' %}"></script>
+    <script src="{% static 'js/date-inputs.js' %}"></script>
     <script src="{% static 'js/timestamps.js' %}"></script>
     <script src="{% static 'js/realtime-updates.js' %}"></script>
     

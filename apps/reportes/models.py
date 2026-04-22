@@ -155,3 +155,69 @@ class SLAReporte(BaseModel):
     
     def __str__(self):
         return f"SLA Reporte - {self.area or 'Global'}"
+
+
+class RetroalimentacionTicket(BaseModel):
+    """
+    Retroalimentación por ticket / especialidad.
+    Permite registrar calificación y comentarios de atención.
+    """
+    CALIFICACION_PESIMA = 1
+    CALIFICACION_MALA = 2
+    CALIFICACION_REGULAR = 3
+    CALIFICACION_BUENA = 4
+    CALIFICACION_EXCELENTE = 5
+
+    CALIFICACIONES = [
+        (CALIFICACION_PESIMA, '1 - Muy mala'),
+        (CALIFICACION_MALA, '2 - Mala'),
+        (CALIFICACION_REGULAR, '3 - Regular'),
+        (CALIFICACION_BUENA, '4 - Buena'),
+        (CALIFICACION_EXCELENTE, '5 - Excelente'),
+    ]
+
+    ticket = models.ForeignKey(
+        'tickets.Ticket',
+        on_delete=models.CASCADE,
+        related_name='retroalimentaciones',
+        verbose_name='Ticket'
+    )
+    area = models.ForeignKey(
+        'tickets.Area',
+        on_delete=models.SET_NULL,
+        related_name='retroalimentaciones',
+        verbose_name='Área',
+        null=True,
+        blank=True
+    )
+    especialidad = models.CharField(
+        'Especialidad',
+        max_length=120,
+        help_text='Especialidad o categoría evaluada'
+    )
+    calificacion = models.PositiveSmallIntegerField(
+        'Calificación',
+        choices=CALIFICACIONES,
+        default=CALIFICACION_REGULAR
+    )
+    comentario = models.TextField(
+        'Comentario',
+        blank=True
+    )
+    creado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='retroalimentaciones_creadas',
+        verbose_name='Creado por',
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        db_table = 'retroalimentacion_ticket'
+        verbose_name = 'Retroalimentación de Ticket'
+        verbose_name_plural = 'Retroalimentaciones de Tickets'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Feedback {self.ticket.folio} - {self.get_calificacion_display()}"

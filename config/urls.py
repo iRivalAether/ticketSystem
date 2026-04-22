@@ -44,11 +44,13 @@ urlpatterns = [
     
     # Reportes
     path('reportes/', ticket_views.reportes, name='reportes'),
+    path('reportes/exportar/', include('apps.reportes.urls')),
 
     # AJAX / Live stats
     path('api/dashboard/stats/', ticket_views.dashboard_stats_api, name='dashboard_stats_api'),
     path('api/reportes/stats/', ticket_views.reportes_stats_api, name='reportes_stats_api'),
     path('api/reportes/datos-filtrados/', ticket_views.reportes_datos_filtrados_api, name='reportes-datos-filtrados'),
+    path('tickets/<int:ticket_id>/feedback/', ticket_views.ticket_feedback, name='ticket_feedback'),
     path('api/tickets/actividades-recientes/', ticket_views.actividades_recientes_api, name='actividades-recientes'),
     
     

@@ -11,8 +11,11 @@
             <h1 class="page-title">📊 Reportes y Estadísticas</h1>
             <p class="page-subtitle">Vista global del sistema con gráficos en tiempo real</p>
         </div>
-        <div style="text-align: right; font-size: 0.875rem; color: var(--color-gris-oscuro);">
+        <div style="text-align: right; font-size: 0.875rem; color: var(--color-gris-oscuro); display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
             <p id="last-update-time" style="margin: 0;">Actualizando datos...</p>
+            <div class="d-flex gap-2" style="flex-wrap: wrap; justify-content: flex-end;">
+                <a href="#" id="export-report-csv" class="btn btn-secondary btn-sm">Descargar CSV</a>
+            </div>
         </div>
     </div>
     
@@ -61,6 +64,17 @@
                         <option value="{{ prioridad.id }}">{{ prioridad.nombre }}</option>
                         {% endfor %}
                     </select>
+                </div>
+            </div>
+
+            <div id="custom-date-range" style="display: none; margin-top: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                <div>
+                    <label for="filter-fecha_inicio"><strong>Fecha inicio</strong></label>
+                    <input type="datetime-local" id="filter-fecha_inicio" class="form-control" style="margin-top: 0.5rem;" data-date-input="datetime-local">
+                </div>
+                <div>
+                    <label for="filter-fecha_fin"><strong>Fecha fin</strong></label>
+                    <input type="datetime-local" id="filter-fecha_fin" class="form-control" style="margin-top: 0.5rem;" data-date-input="datetime-local">
                 </div>
             </div>
         </div>
