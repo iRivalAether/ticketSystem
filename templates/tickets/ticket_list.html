@@ -4,161 +4,228 @@
 {% block title %}Tickets - Sistema de Tickets{% endblock %}
 
 {% block content %}
-<div class="main-container">
-    <div class="page-header">
-        <div class="d-flex justify-between align-center">
-            <div>
-                <h1 class="page-title">Gestión de Tickets</h1>
-                <p class="page-subtitle">Todos los tickets del sistema</p>
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4 fade-up">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="h2 mb-2" style="font-weight: 700;">Gestión de Tickets</h1>
+                    <p class="text-muted mb-0">Todos los tickets del sistema</p>
+                </div>
+                <a href="{% url 'ticket_crear' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> Nuevo Ticket
+                </a>
             </div>
-            <a href="{% url 'ticket_crear' %}" class="btn btn-primary">
-                + Crear Nuevo Ticket
-            </a>
         </div>
     </div>
     
     <!-- Filtros -->
-    <div class="filters-section">
-        <form method="get" action="{% url 'ticket_list' %}">
-            <div class="filters-grid">
-                <div class="form-group">
-                    <label for="estado" class="form-label">Estado</label>
-                    <select name="estado" id="estado" class="form-control">
-                        <option value="">Todos</option>
-                        <option value="ABIERTO" {% if request.GET.estado == 'ABIERTO' %}selected{% endif %}>Abierto</option>
-                        <option value="ASIGNADO" {% if request.GET.estado == 'ASIGNADO' %}selected{% endif %}>Asignado</option>
-                        <option value="EN_ATENCION" {% if request.GET.estado == 'EN_ATENCION' %}selected{% endif %}>En Atención</option>
-                        <option value="CERRADO" {% if request.GET.estado == 'CERRADO' %}selected{% endif %}>Cerrado</option>
-                    </select>
+    <div class="row mb-4 fade-up">
+        <div class="col-12">
+            <div class="card card-modern">
+                <div class="card-header bg-light border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-funnel"></i> Filtros
+                    </h5>
                 </div>
-                
-                <div class="form-group">
-                    <label for="area" class="form-label">Área</label>
-                    <select name="area" id="area" class="form-control">
-                        <option value="">Todas</option>
-                        {% for area in areas %}
-                        <option value="{{ area.id }}" {% if request.GET.area == area.id|stringformat:'s' %}selected{% endif %}>
-                            {{ area.nombre }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="prioridad" class="form-label">Prioridad</label>
-                    <select name="prioridad" id="prioridad" class="form-control">
-                        <option value="">Todas</option>
-                        {% for prioridad in prioridades %}
-                        <option value="{{ prioridad.id }}" {% if request.GET.prioridad == prioridad.id|stringformat:'s' %}selected{% endif %}>
-                            {{ prioridad.nombre }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="sla" class="form-label">Estado SLA</label>
-                    <select name="sla" id="sla" class="form-control">
-                        <option value="">Todos</option>
-                        <option value="verde" {% if request.GET.sla == 'verde' %}selected{% endif %}>Verde</option>
-                        <option value="amarillo" {% if request.GET.sla == 'amarillo' %}selected{% endif %}>Amarillo</option>
-                        <option value="rojo" {% if request.GET.sla == 'rojo' %}selected{% endif %}>Rojo</option>
-                    </select>
+                <div class="card-body">
+                    <form method="get" action="{% url 'ticket_list' %}" class="needs-validation">
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <label for="estado" class="form-label fw-600">Estado</label>
+                                <select name="estado" id="estado" class="form-select form-control">
+                                    <option value="">Todos</option>
+                                    <option value="ABIERTO" {% if request.GET.estado == 'ABIERTO' %}selected{% endif %}>Abierto</option>
+                                    <option value="ASIGNADO" {% if request.GET.estado == 'ASIGNADO' %}selected{% endif %}>Asignado</option>
+                                    <option value="EN_ATENCION" {% if request.GET.estado == 'EN_ATENCION' %}selected{% endif %}>En Atención</option>
+                                    <option value="CERRADO" {% if request.GET.estado == 'CERRADO' %}selected{% endif %}>Cerrado</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <label for="area" class="form-label fw-600">Área</label>
+                                <select name="area" id="area" class="form-select form-control">
+                                    <option value="">Todas</option>
+                                    {% for area in areas %}
+                                    <option value="{{ area.id }}" {% if request.GET.area == area.id|stringformat:'s' %}selected{% endif %}>
+                                        {{ area.nombre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <label for="prioridad" class="form-label fw-600">Prioridad</label>
+                                <select name="prioridad" id="prioridad" class="form-select form-control">
+                                    <option value="">Todas</option>
+                                    {% for prioridad in prioridades %}
+                                    <option value="{{ prioridad.id }}" {% if request.GET.prioridad == prioridad.id|stringformat:'s' %}selected{% endif %}>
+                                        {{ prioridad.nombre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <label for="sla" class="form-label fw-600">Estado SLA</label>
+                                <select name="sla" id="sla" class="form-select form-control">
+                                    <option value="">Todos</option>
+                                    <option value="verde" {% if request.GET.sla == 'verde' %}selected{% endif %}>Verde</option>
+                                    <option value="amarillo" {% if request.GET.sla == 'amarillo' %}selected{% endif %}>Amarillo</option>
+                                    <option value="rojo" {% if request.GET.sla == 'rojo' %}selected{% endif %}>Rojo</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Filtrar
+                            </button>
+                            <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Limpiar
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
-            
-            <div class="d-flex gap-2 mt-2">
-                <button type="submit" class="btn btn-primary">Filtrar</button>
-                <a href="{% url 'ticket_list' %}" class="btn btn-secondary">Limpiar</a>
-            </div>
-        </form>
+        </div>
     </div>
-    
-    <!-- Tabla de Tickets -->
-    <div class="card">
-        <div class="card-body">
-            {% if tickets %}
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Folio</th>
-                            <th>Título</th>
-                            <th>Estado</th>
-                            <th>Prioridad</th>
-                            <th>Área</th>
-                            <th>Asignado a</th>
-                            <th>SLA</th>
-                            <th>Creado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ticket in tickets %}
-                        <tr>
-                            <td><strong>{{ ticket.folio }}</strong></td>
-                            <td>{{ ticket.nombre|truncatewords:10 }}</td>
-                            <td>
-                                {% if ticket.estado == 'ABIERTO' %}
-                                <span class="badge badge-warning">{{ ticket.get_estado_display }}</span>
-                                {% elif ticket.estado == 'ASIGNADO' %}
-                                <span class="badge badge-secondary">{{ ticket.get_estado_display }}</span>
-                                {% elif ticket.estado == 'EN_ATENCION' %}
-                                <span class="badge badge-dorado">{{ ticket.get_estado_display }}</span>
-                                {% elif ticket.estado == 'CERRADO' %}
-                                <span class="badge badge-success">{{ ticket.get_estado_display }}</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ ticket.prioridad.nombre }}</td>
-                            <td>{{ ticket.area.nombre }}</td>
-                            <td>{{ ticket.usuario_asignado.nombre|default:"Sin asignar" }}</td>
-                            <td style="text-align: center;">
-                                <span class="sla-indicator sla-{{ ticket.sla_status }}"></span>
-                            </td>
-                            <td>
-                                <span data-timestamp="{{ ticket.created_at|timestamp_iso }}">
-                                    {{ ticket.created_at|time_since_human }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="{% url 'ticket_detalle' ticket.id %}" class="btn btn-secondary btn-sm">
-                                    Ver
+    <!-- Lista de Tickets -->
+    <div class="row fade-up">
+        <div class="col-12">
+            <div class="card card-modern">
+                <div class="card-header bg-light border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-list-check"></i> Tickets ({{ paginator.count|default:0 }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if tickets %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th><i class="bi bi-bookmark"></i> Folio</th>
+                                    <th>Título</th>
+                                    <th><i class="bi bi-check-circle"></i> Estado</th>
+                                    <th><i class="bi bi-exclamation-circle"></i> Prioridad</th>
+                                    <th><i class="bi bi-building"></i> Área</th>
+                                    <th><i class="bi bi-person"></i> Asignado</th>
+                                    <th class="text-center"><i class="bi bi-hourglass-split"></i> SLA</th>
+                                    <th><i class="bi bi-calendar"></i> Creado</th>
+                                    <th class="text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in tickets %}
+                                <tr class="align-middle">
+                                    <td>
+                                        <span class="badge" style="background-color: var(--color-dorado); color: var(--color-negro);">
+                                            {{ ticket.folio }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-500">{{ ticket.nombre|truncatewords:8 }}</div>
+                                    </td>
+                                    <td>
+                                        {% if ticket.estado == 'ABIERTO' %}
+                                        <span class="badge bg-warning text-dark">Abierto</span>
+                                        {% elif ticket.estado == 'ASIGNADO' %}
+                                        <span class="badge bg-secondary">Asignado</span>
+                                        {% elif ticket.estado == 'EN_ATENCION' %}
+                                        <span class="badge" style="background-color: var(--color-dorado); color: var(--color-negro);">En Atención</span>
+                                        {% elif ticket.estado == 'CERRADO' %}
+                                        <span class="badge bg-success">Cerrado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ ticket.prioridad.nombre }}</td>
+                                    <td>{{ ticket.area.nombre }}</td>
+                                    <td>{{ ticket.usuario_asignado.nombre|default:"—" }}</td>
+                                    <td class="text-center">
+                                        <span class="sla-indicator sla-{{ ticket.sla_status }}"></span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <span data-timestamp="{{ ticket.created_at|timestamp_iso }}">
+                                                {{ ticket.created_at|time_since_human }}
+                                            </span>
+                                        </small>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'ticket_detalle' ticket.id %}" class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginación -->
+                    {% if is_paginated %}
+                    <nav aria-label="Paginación" class="d-flex justify-content-between align-items-center p-3 border-top">
+                        <small class="text-muted">
+                            Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} tickets
+                        </small>
+                        <ul class="pagination mb-0">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" aria-label="Primera">
+                                    <i class="bi bi-chevron-double-left"></i>
                                 </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Paginación -->
-            {% if is_paginated %}
-            <div class="d-flex justify-between align-center mt-3">
-                <div>
-                    Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} tickets
-                </div>
-                <div class="d-flex gap-1">
-                    {% if page_obj.has_previous %}
-                    <a href="?page=1" class="btn btn-secondary btn-sm">Primera</a>
-                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary btn-sm">Anterior</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Anterior">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+                            </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    {{ page_obj.number }} / {{ paginator.num_pages }}
+                                </span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Siguiente">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ paginator.num_pages }}" aria-label="Última">
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
                     {% endif %}
-                    
-                    <span class="btn btn-secondary btn-sm" style="background-color: var(--color-dorado);">
-                        {{ page_obj.number }}
-                    </span>
-                    
-                    {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary btn-sm">Siguiente</a>
-                    <a href="?page={{ paginator.num_pages }}" class="btn btn-secondary btn-sm">Última</a>
+                    {% else %}
+                    <div class="p-5 text-center">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: var(--color-gris-medio);"></i>
+                        <p class="text-muted mt-3 mb-0">No se encontraron tickets con los filtros seleccionados.</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>
-            {% endif %}
-            {% else %}
-            <p class="text-center" style="padding: 3rem; color: var(--color-gris-oscuro);">
-                No se encontraron tickets con los filtros seleccionados.
-            </p>
-            {% endif %}
         </div>
     </div>
 </div>

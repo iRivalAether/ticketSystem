@@ -3,89 +3,102 @@
 {% block title %}{{ usuario.nombre }} - Detalle de Usuario{% endblock %}
 
 {% block content %}
-<div class="main-container">
+<div class="container-fluid py-4">
     <!-- Breadcrumb -->
-    <div style="margin-bottom: 1rem;">
-        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
-        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
-        <a href="{% url 'usuarios:usuario_listar' %}" style="color: var(--color-gris-oscuro);">Usuarios</a>
-        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
-        <span class="text-dorado">{{ usuario.nombre }}</span>
-    </div>
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="bi bi-house"></i> Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'usuarios:usuario_listar' %}"><i class="bi bi-people"></i> Usuarios</a></li>
+            <li class="breadcrumb-item active">{{ usuario.nombre }}</li>
+        </ol>
+    </nav>
     
-    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <h1 class="page-title">{{ usuario.nombre }}</h1>
-            <p class="page-subtitle">{{ usuario.rol.nombre }}</p>
+    <!-- Header con Botón Editar -->
+    <div class="row mb-4 fade-up">
+        <div class="col-md-8">
+            <h1 class="h2 mb-1 fw-700">
+                <i class="bi bi-person-circle"></i> {{ usuario.nombre }}
+            </h1>
+            <p class="text-muted mb-0">
+                <span class="badge" style="background-color: var(--color-dorado); color: var(--color-negro);">
+                    {{ usuario.rol.nombre }}
+                </span>
+            </p>
         </div>
-        <a href="{% url 'usuarios:usuario_editar' usuario.id %}" class="btn btn-primary">
-            ✏ Editar Usuario
-        </a>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'usuarios:usuario_editar' usuario.id %}" class="btn btn-primary btn-lg fw-600">
+                <i class="bi bi-pencil"></i> Editar Usuario
+            </a>
+        </div>
     </div>
     
     <!-- Grid de 2 columnas -->
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
-        <!-- Columna Principal -->
-        <div>
+    <div class="row g-4 fade-up">
+        <!-- Columna Principal (8 cols) -->
+        <div class="col-lg-8">
             <!-- Información del Usuario -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Información</h2>
+            <div class="card card-modern mb-4">
+                <div class="card-header bg-light border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> Información Personal
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                        <div>
-                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Nombre</p>
-                            <p style="margin-bottom: 1.5rem;">{{ usuario.nombre }}</p>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-600">Nombre Completo</label>
+                            <p class="mb-0 fw-500">{{ usuario.nombre }}</p>
                         </div>
                         
-                        <div>
-                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Email</p>
-                            <p style="margin-bottom: 1.5rem;">
-                                <code style="background: #f4f4f4; padding: 0.25rem 0.5rem; border-radius: 3px;">
-                                    {{ usuario.user.username }}
-                                </code>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-600">Usuario / Email</label>
+                            <p class="mb-0">
+                                <code class="bg-light px-2 py-1 rounded small">{{ usuario.user.username }}</code>
                             </p>
                         </div>
                         
-                        <div>
-                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Rol</p>
-                            <p style="margin-bottom: 1.5rem;">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-600">Rol</label>
+                            <p class="mb-0">
                                 {% if usuario.rol.nivel_jerarquico == 1 %}
-                                    <span class="badge badge-secondary">{{ usuario.rol.nombre }}</span>
+                                    <span class="badge bg-secondary">{{ usuario.rol.nombre }}</span>
                                 {% elif usuario.rol.nivel_jerarquico == 2 %}
-                                    <span class="badge badge-dorado">{{ usuario.rol.nombre }}</span>
+                                    <span class="badge" style="background-color: var(--color-dorado); color: var(--color-negro);">{{ usuario.rol.nombre }}</span>
                                 {% else %}
-                                    <span class="badge badge-success">{{ usuario.rol.nombre }}</span>
+                                    <span class="badge bg-success">{{ usuario.rol.nombre }}</span>
                                 {% endif %}
                             </p>
                         </div>
                         
-                        <div>
-                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Área</p>
-                            <p style="margin-bottom: 1.5rem;">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-600">Área Asignada</label>
+                            <p class="mb-0">
                                 {% if usuario.area %}
-                                    {{ usuario.area.nombre }}
+                                    <i class="bi bi-building"></i> {{ usuario.area.nombre }}
                                 {% else %}
-                                    <span style="color: #999;">No asignada</span>
+                                    <span class="text-muted">No asignada</span>
                                 {% endif %}
                             </p>
                         </div>
                         
-                        <div>
-                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Estado</p>
-                            <p style="margin-bottom: 1.5rem;">
+                        <div class="col-md-6 mb-md-0">
+                            <label class="form-label text-muted small fw-600">Estado</label>
+                            <p class="mb-0">
                                 {% if usuario.is_active %}
-                                    <span style="color: #28a745; font-weight: 600;">✓ Activo</span>
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Activo
+                                    </span>
                                 {% else %}
-                                    <span style="color: #dc3545; font-weight: 600;">✗ Inactivo</span>
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-x-circle"></i> Inactivo
+                                    </span>
                                 {% endif %}
                             </p>
                         </div>
                         
-                        <div>
-                            <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">Fecha de Creación</p>
-                            <p style="margin-bottom: 1.5rem;">{{ usuario.created_at|date:"d/m/Y H:i" }}</p>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-600">Fecha de Registro</label>
+                            <p class="mb-0">{{ usuario.created_at|date:"d/m/Y H:i" }}</p>
                         </div>
                     </div>
                 </div>
@@ -93,38 +106,48 @@
             
             <!-- Estadísticas (si es Operativo) -->
             {% if usuario.es_operativo and stats %}
-            <div class="card" style="margin-top: 1.5rem;">
-                <div class="card-header">
-                    <h2 class="card-title">Estadísticas de Tickets</h2>
+            <div class="card card-modern">
+                <div class="card-header bg-light border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-bar-chart"></i> Estadísticas de Tickets
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
-                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; text-align: center;">
-                            <p style="margin: 0; color: var(--color-gris-oscuro); font-size: 0.875rem; font-weight: 600;">Total</p>
-                            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: var(--color-dorado);">
-                                {{ stats.tickets_totales }}
-                            </p>
+                    <div class="row">
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #f5f5f5 0%, #f8f9fa 100%); border-left: 4px solid var(--color-dorado);">
+                                <p class="text-muted small fw-600 mb-2">Total</p>
+                                <p class="h4 mb-0 fw-700" style="color: var(--color-dorado);">
+                                    {{ stats.tickets_totales }}
+                                </p>
+                            </div>
                         </div>
                         
-                        <div style="background: #fff3cd; padding: 1rem; border-radius: 4px; text-align: center;">
-                            <p style="margin: 0; color: var(--color-gris-oscuro); font-size: 0.875rem; font-weight: 600;">Abiertos</p>
-                            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: #ff9800;">
-                                {{ stats.tickets_abiertos }}
-                            </p>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%); border-left: 4px solid #ffc107;">
+                                <p class="text-muted small fw-600 mb-2">Abiertos</p>
+                                <p class="h4 mb-0 fw-700" style="color: #ffc107;">
+                                    {{ stats.tickets_abiertos }}
+                                </p>
+                            </div>
                         </div>
                         
-                        <div style="background: #e7f3ff; padding: 1rem; border-radius: 4px; text-align: center;">
-                            <p style="margin: 0; color: var(--color-gris-oscuro); font-size: 0.875rem; font-weight: 600;">En Atención</p>
-                            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: #2196f3;">
-                                {{ stats.tickets_en_atencion }}
-                            </p>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #cfe2ff 0%, #e7f3ff 100%); border-left: 4px solid #0d6efd;">
+                                <p class="text-muted small fw-600 mb-2">En Atención</p>
+                                <p class="h4 mb-0 fw-700" style="color: #0d6efd;">
+                                    {{ stats.tickets_en_atencion }}
+                                </p>
+                            </div>
                         </div>
                         
-                        <div style="background: #d4edda; padding: 1rem; border-radius: 4px; text-align: center;">
-                            <p style="margin: 0; color: var(--color-gris-oscuro); font-size: 0.875rem; font-weight: 600;">Asignados</p>
-                            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: #28a745;">
-                                {{ stats.tickets_asignados }}
-                            </p>
+                        <div class="col-md-6 col-lg-3 mb-lg-0">
+                            <div class="text-center p-3 rounded" style="background: linear-gradient(135deg, #d1e7dd 0%, #d8f5e3 100%); border-left: 4px solid #198754;">
+                                <p class="text-muted small fw-600 mb-2">Asignados</p>
+                                <p class="h4 mb-0 fw-700" style="color: #198754;">
+                                    {{ stats.tickets_asignados }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -132,71 +155,67 @@
             {% endif %}
         </div>
         
-        <!-- Columna Lateral -->
-        <div>
+        <!-- Columna Lateral (4 cols) -->
+        <div class="col-lg-4">
             <!-- Información de Permisos -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Permisos</h2>
+            <div class="card card-modern">
+                <div class="card-header bg-light border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-shield-check"></i> Permisos
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <ul style="margin: 0; padding-left: 1.5rem; list-style: none;">
+                    <div class="list-group list-group-flush">
                         {% if usuario.es_operativo %}
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Ver tickets asignados
-                            </li>
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Actualizar estado
-                            </li>
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Cerrar tickets
-                            </li>
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Ver tickets asignados
+                            </div>
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Actualizar estado
+                            </div>
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Cerrar tickets
+                            </div>
                         {% endif %}
                         
                         {% if usuario.es_jefe_area %}
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Ver tickets del área
-                            </li>
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Realizar triaje
-                            </li>
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Asignar tickets
-                            </li>
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Liberar tickets
-                            </li>
+                            <hr class="my-2">
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Ver tickets del área
+                            </div>
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Realizar triaje
+                            </div>
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Asignar tickets
+                            </div>
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Liberar tickets
+                            </div>
                         {% endif %}
                         
                         {% if usuario.es_supervision_general %}
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Ver todos los tickets
-                            </li>
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Acceder a reportes globales
-                            </li>
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Gestionar usuarios
-                            </li>
-                            <li style="margin-bottom: 0.75rem;">
-                                ✓ Devolver tickets
-                            </li>
+                            <hr class="my-2">
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Ver todos los tickets
+                            </div>
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Acceder a reportes
+                            </div>
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Gestionar usuarios
+                            </div>
+                            <div class="list-group-item border-0 ps-0 pb-2">
+                                <i class="bi bi-check-circle text-success"></i> Devolver tickets
+                            </div>
                         {% endif %}
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    .badge {
-        display: inline-block;
-        padding: 0.375rem 0.75rem;
-        border-radius: 3px;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
+{% endblock %}
     
     .badge-secondary {
         background: #6c757d;

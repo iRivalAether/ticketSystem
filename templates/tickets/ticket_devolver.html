@@ -3,73 +3,95 @@
 {% block title %}Devolver Ticket - {{ ticket.folio }}{% endblock %}
 
 {% block content %}
-<div class="main-container">
+<div class="container-fluid py-4">
     <!-- Breadcrumb -->
-    <div style="margin-bottom: 1rem;">
-        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
-        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
-        <a href="{% url 'ticket_detalle' ticket.id %}" style="color: var(--color-gris-oscuro);">{{ ticket.folio }}</a>
-        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
-        <span class="text-dorado">Devolver</span>
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="bi bi-house"></i> Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ticket_detalle' ticket.id %}"><i class="bi bi-ticket"></i> {{ ticket.folio }}</a></li>
+            <li class="breadcrumb-item active">Devolver</li>
+        </ol>
+    </nav>
+    
+    <!-- Header -->
+    <div class="row mb-4 fade-up">
+        <div class="col-12">
+            <h1 class="h2 mb-2 fw-700">
+                <i class="bi bi-arrow-return-left"></i> Devolver Ticket
+            </h1>
+            <p class="text-muted mb-0">
+                <span class="badge" style="background-color: var(--color-dorado); color: var(--color-negro);">{{ ticket.folio }}</span>
+                {{ ticket.nombre }}
+            </p>
+        </div>
     </div>
     
-    <div class="page-header">
-        <h1 class="page-title">Devolver Ticket {{ ticket.folio }}</h1>
-        <p class="page-subtitle">{{ ticket.nombre }}</p>
-    </div>
-    
-    <div style="max-width: 600px; margin: 0 auto;">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Devolver a Abierto</h2>
-            </div>
-            <div class="card-body">
-                <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
-                    <p style="margin: 0; color: #721c24;">
-                        <strong>⚠️ Acción Crítica:</strong> Este ticket será devuelto a estado Abierto. Use esta opción solo cuando sea necesario reabrir un ticket cerrado.
-                    </p>
-                </div>
-                
-                <div style="margin-bottom: 1.5rem;">
-                    <p style="margin-bottom: 0.5rem; color: var(--color-gris-oscuro); font-weight: 600;">
-                        Detalles del Ticket:
-                    </p>
-                    <ul style="margin: 0; padding-left: 1.5rem; line-height: 1.8;">
-                        <li><strong>Folio:</strong> {{ ticket.folio }}</li>
-                        <li><strong>Título:</strong> {{ ticket.nombre }}</li>
-                        <li><strong>Estado Actual:</strong> {{ ticket.get_estado_display }}</li>
-                        <li><strong>Área:</strong> {{ ticket.area.nombre }}</li>
-                        <li><strong>Prioridad:</strong> {{ ticket.prioridad.nombre }}</li>
-                        <li><strong>Cerrado por:</strong> {{ ticket.usuario_asignado.nombre }}</li>
-                    </ul>
-                </div>
-                
-                <form method="post" style="border-top: 1px solid #e0e0e0; padding-top: 1.5rem;">
-                    {% csrf_token %}
-                    
-                    <div style="margin-bottom: 1.5rem;">
-                        <label for="motivo" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
-                            Motivo de Devolución
-                        </label>
-                        <textarea 
-                            name="motivo" 
-                            id="motivo"
-                            class="form-control"
-                            rows="4"
-                            placeholder="Describa por qué se está devolviendo este ticket..."
-                            required
-                        ></textarea>
+    <!-- Formulario -->
+    <div class="row fade-up">
+        <div class="col-lg-6">
+            <div class="card card-modern">
+                <div class="card-body">
+                    <div class="alert alert-danger d-flex align-items-start" role="alert">
+                        <i class="bi bi-exclamation-octagon me-2 flex-shrink-0"></i>
+                        <div>
+                            <strong>Acción Crítica:</strong> Este ticket será devuelto a estado Abierto. Use esta opción solo cuando sea necesario reabrir un ticket cerrado.
+                        </div>
                     </div>
                     
-                    <div style="display: flex; gap: 1rem;">
-                        <button type="submit" class="btn btn-danger" style="flex: 1;">
-                            ✓ Confirmar Devolución
-                        </button>
-                        <a href="{% url 'ticket_detalle' ticket.id %}" class="btn btn-secondary" style="flex: 1;">
-                            ✕ Cancelar
-                        </a>
+                    <div class="mb-4">
+                        <h6 class="fw-600 text-muted mb-3">
+                            <i class="bi bi-info-circle"></i> Detalles del Ticket
+                        </h6>
+                        <div class="ps-3 border-start" style="border-color: var(--color-dorado);">
+                            <p class="mb-2">
+                                <strong>Folio:</strong> {{ ticket.folio }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>Título:</strong> {{ ticket.nombre }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>Estado:</strong> 
+                                <span class="badge bg-secondary">{{ ticket.get_estado_display }}</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong>Área:</strong> {{ ticket.area.nombre }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>Prioridad:</strong> {{ ticket.prioridad.nombre }}
+                            </p>
+                            <p class="mb-0">
+                                <strong>Cerrado por:</strong> {{ ticket.usuario_asignado.nombre }}
+                            </p>
+                        </div>
                     </div>
-                </form>
+                    
+                    <form method="post" class="border-top pt-3">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="motivo" class="form-label fw-600">
+                                <i class="bi bi-chat-left-text"></i> Motivo de Devolución <span class="text-danger">*</span>
+                            </label>
+                            <textarea 
+                                name="motivo" 
+                                id="motivo"
+                                class="form-control"
+                                rows="4"
+                                placeholder="Describa por qué se está devolviendo este ticket..."
+                                required
+                            ></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-sm-flex">
+                            <button type="submit" class="btn btn-danger btn-lg flex-sm-grow-1 fw-600">
+                                <i class="bi bi-check-circle"></i> Confirmar Devolución
+                            </button>
+                            <a href="{% url 'ticket_detalle' ticket.id %}" class="btn btn-outline-secondary btn-lg flex-sm-grow-1 fw-600">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,64 @@
+{% load static %}
+{% comment %} Navbar Bootstrap personalizado. Mantiene lógica de permisos y badges existentes. {% endcomment %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
+      <i class="bi bi-circle-fill me-2 text-dorado" style="font-size: .9rem;"></i>
+      <span class="fw-bold">Ticket System</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link {% if 'ticket' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'ticket_list' %}">Tickets</a></li>
+
+        {% if user.puede_asignar_ticket %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'ticket_triaje' %}">Triaje</a></li>
+        {% endif %}
+
+        {% if user.puede_ver_reportes_globales %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'reportes' %}">Reportes</a></li>
+        {% endif %}
+
+        {% if sla_alertas_vencidas %}
+        <li class="nav-item">
+          <a class="nav-link position-relative text-danger" href="{% url 'reportes' %}#chart-sla-gauge">
+            <i class="bi bi-exclamation-circle-fill me-1"></i>
+            Alertas SLA
+            <span class="badge bg-danger rounded-pill ms-1">{{ sla_alertas_vencidas }}</span>
+          </a>
+        </li>
+        {% endif %}
+
+        {% if user.es_jefe_area or user.is_superuser %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'semaforo_config' %}">Semáforo SLA</a></li>
+        {% endif %}
+
+        {% if user.es_supervision_general %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'usuarios:usuario_listar' %}">Usuarios</a></li>
+        {% endif %}
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle me-2"></i>
+            <span class="d-none d-lg-inline">{{ user.nombre }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+            <li class="dropdown-item-text">Usuario: <strong class="text-dorado">{{ user.nombre }}</strong></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="{% url 'logout' %}" class="px-3 py-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-secondary w-100">Cerrar Sesión</button>
+              </form>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

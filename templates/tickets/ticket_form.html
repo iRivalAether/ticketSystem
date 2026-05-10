@@ -1,71 +1,113 @@
 {% extends 'base.html' %}
+{% load time_filters %}
 
 {% block title %}Crear Ticket - Sistema de Tickets{% endblock %}
 
 {% block content %}
-<div class="main-container">
-    <div style="margin-bottom: 1rem;">
-        <a href="{% url 'dashboard' %}" style="color: var(--color-gris-oscuro);">Dashboard</a>
-        <span style="margin: 0 0.5rem; color: var(--color-gris-oscuro);">/</span>
-        <span class="text-dorado">Crear Ticket</span>
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="bi bi-house"></i> Dashboard</a></li>
+            <li class="breadcrumb-item active"><i class="bi bi-plus-circle"></i> Nuevo Ticket</li>
+        </ol>
+    </nav>
+    
+    <!-- Header -->
+    <div class="row mb-4 fade-up">
+        <div class="col-12">
+            <h1 class="h2 mb-2 fw-700">
+                <i class="bi bi-pencil-square"></i> Crear Nuevo Ticket
+            </h1>
+            <p class="text-muted mb-0">Complete el formulario para registrar una nueva solicitud o problema</p>
+        </div>
     </div>
     
-    <div class="page-header">
-        <h1 class="page-title">Crear Nuevo Ticket</h1>
-        <p class="page-subtitle">Complete el formulario para registrar un nuevo ticket</p>
-    </div>
-    
-    <div class="card" style="max-width: 800px; margin: 0 auto;">
-        <div class="card-body">
-            <form method="post" action="{% url 'ticket_crear' %}">
-                {% csrf_token %}
-                
-                {% if form.errors %}
-                <div class="alert alert-danger">
-                    <strong>Errores en el formulario:</strong>
-                    <ul style="margin: 0.5rem 0 0 1.5rem;">
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <li>{{ field.label }}: {{ error }}</li>
+    <!-- Formulario -->
+    <div class="row fade-up">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card card-modern">
+                <div class="card-header bg-light border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> Información del Ticket
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong><i class="bi bi-exclamation-triangle"></i> Errores encontrados:</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
                             {% endfor %}
-                        {% endfor %}
-                    </ul>
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'ticket_crear' %}" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Título -->
+                        <div class="mb-3">
+                            <label for="{{ form.nombre.id_for_label }}" class="form-label fw-600">
+                                <i class="bi bi-file-text"></i> Título <span class="text-danger">*</span>
+                            </label>
+                            {% if form.nombre.errors %}
+                                {{ form.nombre|add_class:"form-control is-invalid" }}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.nombre.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.nombre|add_class:"form-control" }}
+                            {% endif %}
+                            <small class="text-muted d-block mt-2">Resumen breve del problema o solicitud</small>
+                        </div>
+                        
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-600">
+                                <i class="bi bi-chat-left-text"></i> Descripción <span class="text-danger">*</span>
+                            </label>
+                            {% if form.descripcion.errors %}
+                                {{ form.descripcion|add_class:"form-control is-invalid" }}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.descripcion.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.descripcion|add_class:"form-control" }}
+                            {% endif %}
+                            <small class="text-muted d-block mt-2">Describa con detalle el problema o solicitud</small>
+                        </div>
+                        
+                        <!-- Prioridad -->
+                        <div class="mb-4">
+                            <label for="{{ form.prioridad.id_for_label }}" class="form-label fw-600">
+                                <i class="bi bi-exclamation-circle"></i> Prioridad <span class="text-danger">*</span>
+                            </label>
+                            {% if form.prioridad.errors %}
+                                {{ form.prioridad|add_class:"form-select is-invalid" }}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.prioridad.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.prioridad|add_class:"form-select" }}
+                            {% endif %}
+                            <small class="text-muted d-block mt-2">Seleccione la prioridad del ticket</small>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 d-sm-flex pt-3 border-top">
+                            <button type="submit" class="btn btn-primary btn-lg flex-sm-grow-1">
+                                <i class="bi bi-check-circle"></i> Crear Ticket
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-lg flex-sm-grow-1">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
                 </div>
-                {% endif %}
-                
-                <div class="form-group">
-                    <label for="{{ form.nombre.id_for_label }}" class="form-label">
-                        Título *
-                    </label>
-                    {{ form.nombre }}
-                    <small class="form-text">Resumen breve del problema o solicitud</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="{{ form.descripcion.id_for_label }}" class="form-label">
-                        Descripción *
-                    </label>
-                    {{ form.descripcion }}
-                    <small class="form-text">Describa con detalle el problema o solicitud</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="{{ form.prioridad.id_for_label }}" class="form-label">
-                        Prioridad *
-                    </label>
-                    {{ form.prioridad }}
-                    <small class="form-text">Seleccione la prioridad del ticket</small>
-                </div>
-                
-                <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        Crear Ticket
-                    </button>
-                    <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg">
-                        Cancelar
-                    </a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

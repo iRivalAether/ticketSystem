@@ -1,6 +1,6 @@
 /* ============================================
-   Sistema de Gestión de Tickets - Styles
-   Esquema de colores: Blanco, Negro, Dorado
+   Colores globales — Mantener SOLO la paleta
+   El resto de estilos fue movido a bootstrap_overrides.css
    ============================================ */
 
 :root {
@@ -22,176 +22,12 @@
     --color-gris-claro: #f8f9fa;
     --color-gris-medio: #e9ecef;
     --color-gris-oscuro: #495057;
-    
-    /* Sombras */
-    --sombra-suave: 0 2px 4px rgba(0, 0, 0, 0.1);
-    --sombra-media: 0 4px 6px rgba(0, 0, 0, 0.15);
-    --sombra-fuerte: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--color-blanco);
-    color: var(--color-negro);
-    line-height: 1.6;
-}
-
-/* ============================================
-   NAVBAR
-   ============================================ */
-
-.navbar {
-    background-color: var(--color-negro);
-    padding: 1rem 2rem;
-    box-shadow: var(--sombra-media);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-.navbar-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.navbar-brand {
-    color: var(--color-dorado);
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.navbar-brand:hover {
-    color: var(--color-dorado-hover);
-}
-
-.navbar-menu {
-    display: flex;
-    list-style: none;
-    gap: 2rem;
-    align-items: center;
-}
-
-.navbar-link {
-    color: var(--color-blanco);
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-}
-
-.navbar-link:hover {
-    background-color: var(--color-negro-suave);
-    color: var(--color-dorado);
-}
-
-.navbar-link.active {
-    background-color: var(--color-dorado);
-    color: var(--color-negro);
-}
-
-.navbar-link-button {
-    border: none;
-    background: transparent;
-    font: inherit;
-    cursor: pointer;
-}
-
-.user-info {
-    color: var(--color-blanco);
-    padding: 0.5rem 1rem;
-    border-left: 2px solid var(--color-dorado);
-}
-
-.user-info span {
-    color: var(--color-dorado);
-    font-weight: bold;
-}
-
-.navbar-link-alert {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.navbar-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.5rem;
-    height: 1.5rem;
-    padding: 0 0.35rem;
-    border-radius: 999px;
-    background-color: var(--color-peligro);
-    color: var(--color-blanco);
-    font-size: 0.75rem;
-    font-weight: 700;
-}
-
-.input-invalid {
-    border-color: var(--color-peligro) !important;
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
-}
-
-/* ============================================
-   LAYOUT PRINCIPAL
-   ============================================ */
-
-.main-container {
-    max-width: 1400px;
-    margin: 2rem auto;
-    padding: 0 2rem;
-}
-
-.page-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--color-negro);
-}
-
-.page-title {
-    font-size: 2rem;
-    color: var(--color-negro);
-    margin-bottom: 0.5rem;
-}
-
-.page-subtitle {
-    color: var(--color-gris-oscuro);
-    font-size: 1rem;
-}
-
-/* ============================================
-   CARDS
-   ============================================ */
-
-.card {
-    background-color: var(--color-blanco);
-    border: 1px solid var(--color-negro);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--sombra-suave);
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    box-shadow: var(--sombra-media);
-    transform: translateY(-2px);
-}
-
-.card-header {
+/* Notas:
+   - Este archivo ahora contiene únicamente las variables de color.
+   - Todas las reglas visuales se encuentran en css/bootstrap_overrides.css
+*/
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -659,6 +495,235 @@ select.form-control {
 }
 
 /* ============================================
+   DASHBOARD REWORK
+   ============================================ */
+
+.dashboard-shell {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.hero-panel {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: 1.5rem;
+    padding: 2rem;
+    border: 1px solid rgba(26, 26, 26, 0.08);
+    border-radius: 20px;
+    background: linear-gradient(135deg, #171717 0%, #242424 45%, #2f2612 100%);
+    color: var(--color-blanco);
+    box-shadow: var(--sombra-fuerte);
+}
+
+.hero-kicker {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(212, 175, 55, 0.15);
+    color: #f6e7a7;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hero-title {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.05;
+    margin-bottom: 0.75rem;
+}
+
+.hero-subtitle {
+    max-width: 60ch;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 1.05rem;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.hero-meta {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.hero-meta-card {
+    padding: 1rem 1.1rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-meta-card-accent {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.16), rgba(255, 255, 255, 0.08));
+}
+
+.hero-meta-label,
+.section-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.section-label {
+    color: var(--color-gris-oscuro);
+}
+
+.stats-grid-compact {
+    margin-bottom: 0;
+}
+
+.card-elevated {
+    border-radius: 18px;
+    border-color: rgba(26, 26, 26, 0.1);
+    box-shadow: 0 12px 30px rgba(26, 26, 26, 0.08);
+}
+
+.card-header-soft {
+    border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+}
+
+.ticket-spotlight {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.ticket-folio {
+    margin-bottom: 0.25rem;
+    color: var(--color-dorado-hover);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.ticket-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+}
+
+.ticket-meta {
+    color: var(--color-gris-oscuro);
+}
+
+.ticket-sla {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 120px;
+    padding-left: 1rem;
+    border-left: 1px solid rgba(26, 26, 26, 0.08);
+    font-weight: 700;
+}
+
+.sla-bands {
+    display: grid;
+    gap: 1rem;
+}
+
+.sla-bands > div {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 0.75rem;
+    align-items: center;
+}
+
+.sla-bands p {
+    grid-column: 2;
+    color: var(--color-gris-oscuro);
+    margin-top: -0.25rem;
+}
+
+.sla-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(26, 26, 26, 0.15);
+}
+
+.quick-links {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.quick-link {
+    display: block;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-gris-medio);
+    background: linear-gradient(180deg, #fff 0%, #fbfbfb 100%);
+    color: var(--color-negro);
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quick-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-dorado);
+    box-shadow: var(--sombra-suave);
+}
+
+.table-container-modern {
+    border-radius: 14px;
+    border-color: rgba(26, 26, 26, 0.08);
+}
+
+.table-modern thead {
+    background: linear-gradient(90deg, #171717 0%, #2d2d2d 100%);
+}
+
+.empty-state {
+    padding: 2rem;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #fff 0%, #fbfbfb 100%);
+    border: 1px dashed rgba(26, 26, 26, 0.18);
+    color: var(--color-gris-oscuro);
+    text-align: center;
+}
+
+.empty-state-inline {
+    margin: 0.5rem 0 0;
+}
+
+.stat-footnote {
+    margin-top: 0.5rem;
+    color: var(--color-gris-oscuro);
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .hero-panel,
+    .dashboard-grid,
+    .ticket-spotlight {
+        grid-template-columns: 1fr;
+        display: grid;
+    }
+
+    .ticket-sla {
+        border-left: none;
+        border-top: 1px solid rgba(26, 26, 26, 0.08);
+        padding-left: 0;
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+    }
+}
+
+/* ============================================
    LOGIN PAGE
    ============================================ */
 
@@ -667,15 +732,18 @@ select.form-control {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--color-negro) 0%, var(--color-negro-suave) 100%);
+    padding: 2rem;
+    background:
+        radial-gradient(circle at top, rgba(212, 175, 55, 0.18), transparent 35%),
+        linear-gradient(135deg, var(--color-negro) 0%, #121212 60%, #1f1a0f 100%);
 }
 
 .login-card {
-    background-color: var(--color-blanco);
-    border: 3px solid var(--color-dorado);
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 20px;
     padding: 3rem;
-    max-width: 450px;
+    max-width: 460px;
     width: 100%;
     box-shadow: var(--sombra-fuerte);
 }
@@ -699,11 +767,237 @@ select.form-control {
     width: 80px;
     height: 80px;
     margin: 0 auto 1rem;
-    background-color: var(--color-dorado);
+    background: linear-gradient(135deg, var(--color-dorado) 0%, #f3d77a 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
     color: var(--color-negro);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+}
+
+.login-card::after {
+    content: '';
+    display: block;
+    height: 4px;
+    margin-top: 2rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-dorado) 0%, transparent 100%);
+}
+/* ============================================
+   MEJORAS VISUALES FINALES
+   ============================================ */
+
+.card {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card:hover {
+    box-shadow: 0 8px 24px rgba(26, 26, 26, 0.12);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--color-gris-medio);
+}
+
+.card-header.border-dorado {
+    border-bottom-color: var(--color-dorado);
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-negro);
+}
+
+table tbody tr {
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+table tbody tr:hover {
+    background-color: rgba(212, 175, 55, 0.05);
+}
+
+.btn {
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.form-control {
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--color-dorado);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+/* Estilos para badges/estado */
+.badge {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+/* Tablas mejoradas */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead tr {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+}
+
+.table thead th {
+    color: var(--color-dorado);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-color: var(--color-dorado);
+}
+
+/* Paginación mejorada */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-gris-medio);
+}
+
+.page-link {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid var(--color-gris-medio);
+    background: var(--color-blanco);
+    color: var(--color-negro);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-link:hover {
+    background-color: var(--color-dorado);
+    border-color: var(--color-dorado);
+    color: var(--color-negro);
+}
+
+.page-link.active {
+    background-color: var(--color-dorado);
+    border-color: var(--color-dorado);
+    color: var(--color-negro);
+    font-weight: 700;
+}
+
+/* Animación para carga */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* Estilos para formularios */
+.form-group label {
+    font-weight: 600;
+    color: var(--color-negro);
+    margin-bottom: 0.5rem;
+}
+
+/* Breadcrumb mejorado */
+.breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.breadcrumb a {
+    color: var(--color-gris-oscuro);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover {
+    color: var(--color-dorado);
+}
+
+.breadcrumb span {
+    color: var(--color-dorado);
+    font-weight: 600;
+}
+
+/* Stats cards mejoradas */
+.stat-card {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive mejorado */
+@media (max-width: 1024px) {
+    .main-container {
+        padding: 0 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    table {
+        font-size: 0.875rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .card {
+        padding: 1rem;
+    }
+    
+    .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
 }
